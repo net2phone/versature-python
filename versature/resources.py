@@ -23,8 +23,8 @@ def obtain_access(func):
 
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
-            if self.refresh_token:
-                result = self.refresh_token_grant(self.refresh_token)
+            if self.user.refresh_token:
+                result = self.refresh_token_grant(self.user.refresh_token)
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
             else:
@@ -35,7 +35,7 @@ def obtain_access(func):
 class User(object):
 
     def __init__(self, username=None, password=None, access_token=None, refresh_token=None,
-                 expires=None, expires_in=None, scope=None, token_change_func=None, request_handler=None):
+                 expires=None, expires_in=None, scope=None, token_change_func=None):
         self.token_change_func = token_change_func
         self.username = username
         self.password = password
