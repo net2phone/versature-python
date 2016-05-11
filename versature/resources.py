@@ -8,15 +8,18 @@ from versature.exceptions import AuthenticationException
 __author__ = 'DavidWard'
 
 
-def refresh_token_if_expired(func):
+def obtain_access(func):
     """
-    If the access_token expired and a refresh token is found then attempt to update the token
+    If the is not found or if an access_token has expired and a refresh token is found then attempt to update the token
     :param func:
     :return:
     """
     @wraps(func)
     def retry_if_token_expired(self, *args, **kwargs):
         try:
+            if self.access_token is None:
+                self.authenticate()
+
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
             if self.refresh_token:
@@ -41,7 +44,6 @@ class Versature(object):
         self.client_secret = client_secret
         self.vendor_id = vendor_id
         self.request_handler = request_handler
-        self.obtain_access_token()
 
     @property
     def access_token(self):
@@ -57,7 +59,7 @@ class Versature(object):
     def access_token(self):
         del self._access_token
 
-    def obtain_access_token(self):
+    def authenticate(self):
         # If already  have token then return
         if self.access_token:
             return
@@ -128,7 +130,7 @@ class Versature(object):
 
         return resource_request.request('POST', path='oauth/token/', data=data)
 
-    @refresh_token_if_expired
+    @obtain_access
     def read_active_calls(self, all=False, **kwargs):
         """
         Get a list of calls which are currently active/ongoin
@@ -140,7 +142,7 @@ class Versature(object):
         params = {'all': all}
         return authenticated_resource_request.request('GET', params=params, path='calls/')
 
-    @refresh_token_if_expired
+    @obtain_access
     def place_call(self, fr, to, auto_answer=False, **kwargs):
         """
         Place a call from a given user to a given destination. If support auto_answer will pick up/connect the call
@@ -159,7 +161,7 @@ class Versature(object):
 
         return authenticated_resource_request.request('POST', params=params, path='calls/')
 
-    @refresh_token_if_expired
+    @obtain_access
     def answer_call(self, id, to, **kwargs):
         """
         Answer a call with the provided id
@@ -176,7 +178,7 @@ class Versature(object):
 
         return authenticated_resource_request.request('PUT', data=data, path=path)
 
-    @refresh_token_if_expired
+    @obtain_access
     def terminate_call(self, id, **kwargs):
         """
         Hang Up/End a call with the provided id
@@ -195,7 +197,7 @@ class Versature(object):
     CDR_TYPE_MISSED = 'Missed'
     CDR_TYPES = [CDR_TYPE_INBOUND, CDR_TYPE_OUTBOUND, CDR_TYPE_MISSED]
 
-    @refresh_token_if_expired
+    @obtain_access
     def get_cdrs(self, start_date=None, end_date=None, type=None, all=False, **kwargs):
         """
         Get the call records for a given time period for the users specified. If provided the id will
@@ -220,7 +222,7 @@ class Versature(object):
 
         return authenticated_resource_request.request('GET', path='cdrs/', params=params)
 
-    @refresh_token_if_expired
+    @obtain_access
     def get_call_queue_stats(self, **kwargs):
         """
         Get the call queue stats

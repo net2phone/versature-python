@@ -12,7 +12,6 @@ class CallQueuesTest(unittest.TestCase):
     def setUp(self):
         self.versature = Versature(username=username, password=password, client_id=client_id, vendor_id=vendor_id)
 
-
     ################################
     #### Login Call Queue Stats ####
     #################################
