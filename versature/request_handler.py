@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from versature.exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
+from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
-from versature.settings import VERSION, API_URL
+from .settings import VERSION, API_URL
 
 __author__ = 'DavidWard'
 
