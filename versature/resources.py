@@ -152,7 +152,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        resource_request = ResourceRequest(**kwargs)
+        resource_request = ResourceRequest(request_handler=self.request_handler, **kwargs)
 
         data = {'grant_type': 'refresh_token',
                 'refresh_token': refresh_token,
