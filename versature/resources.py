@@ -208,7 +208,7 @@ class Versature(object):
         :param all:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler,**kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
         params = {'start_date': start_date,
                   'end_date': end_date,
                   'type': type,
@@ -219,3 +219,12 @@ class Versature(object):
             assert (type in self.CDR_TYPES)
 
         return authenticated_resource_request.request('GET', path='cdrs/', params=params)
+
+    @refresh_token_if_expired
+    def get_call_queue_stats(self, **kwargs):
+        """
+        Get the call queue stats
+        :return:
+        """
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        return authenticated_resource_request.request('GET', path='call_queues/stats/')
