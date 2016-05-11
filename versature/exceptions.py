@@ -30,19 +30,19 @@ class RateLimitExceeded(HTTPError):
         super(RateLimitExceeded, self).__init__(msg or 'Rate limit exceeded for this endpoint', 429)
 
 
+class ForbiddenException(HTTPError):
+    """
+
+    """
+    def __init__(self, msg):
+        super(ForbiddenException, self).__init__(msg or 'The request failed because the user does not have access to this resource.', 403)
+
+
 class AuthenticationException(HTTPError):
     """
-
     """
     def __init__(self, msg):
-        super(AuthenticationException, self).__init__(msg or 'Invalid Credentials Provided', 403)
-
-
-class UnauthorizedException(HTTPError):
-    """
-    """
-    def __init__(self, msg):
-        super(UnauthorizedException, self).__init__(msg or 'The provided token is not valid', 401)
+        super(AuthenticationException, self).__init__(msg or 'The request failed because the user is not authenticated.', 401)
 
 
 class UnprocessableEntityError(HTTPError):

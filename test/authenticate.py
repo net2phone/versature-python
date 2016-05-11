@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
-from integrate.resources import authenitcate
 
+from versature.resources import Versature
 from secrets import client_id, username, password, vendor_id
 
 __author__ = 'DavidWard'
@@ -9,15 +9,15 @@ __author__ = 'DavidWard'
 
 class BaseAuthenticationTest(unittest.TestCase):
 
-    #def setUp(self):
-    #    self.google = Google(access_token=GOOGLE_PLACES_KEY)
+    def setUp(self):
+        self.versature = Versature(username=username, password=password, client_id=client_id, vendor_id=vendor_id)
 
     ########################################
     #### Login With Username & Password ####
     ########################################
 
     def test_authenticate(self):
-        result = authenitcate.login(username, password, client_id, vendor_id)
+        result = self.versature.password_grant(username, password)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])
@@ -26,7 +26,7 @@ class BaseAuthenticationTest(unittest.TestCase):
         self.assertEquals(result['token_type'], 'Bearer')
 
     def test_refresh_token(self):
-        result = authenitcate.login(username, password, client_id, vendor_id)
+        result = self.versature.password_grant(username, password)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])
@@ -36,7 +36,7 @@ class BaseAuthenticationTest(unittest.TestCase):
         access_token = result['access_token']
         refresh_token = result['refresh_token']
 
-        result = authenitcate.refresh_token(refresh_token, client_id, vendor_id)
+        result = self.versature.refresh_token_grant(refresh_token)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])

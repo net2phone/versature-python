@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, UnauthorizedException, \
+
+from versature.exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
+from versature.settings import VERSION, API_URL
+
 __author__ = 'DavidWard'
 
 
 class ResourceRequest(object):
-    API_URL = 'https://integrate.versature.com/api'
-    API_VERSION = '1.0.1'
 
-    def __init__(self, base_url=None, api_version=None, async=False, timeout=60, **kwargs):
-        self.base_url = base_url or self.API_URL
-        self.api_version = api_version or self.API_VERSION
+    def __init__(self, base_url=API_URL, api_version=VERSION, async=False, timeout=60, **kwargs):
+        self.base_url = base_url
+        self.api_version = api_version
         self._request_handler = None
         self.request_handler = kwargs.pop('request_handler', None) or RequestHandler()
         self.async = async
@@ -149,9 +150,9 @@ class RequestHandler(RequestHandlerBase):
             http_error_msg = '%s Server Error: %s' % (response.status_code, response.reason)
 
         if response.status_code == 401:
-            raise UnauthorizedException(http_error_msg)
-        elif response.status_code == 403:
             raise AuthenticationException(http_error_msg)
+        elif response.status_code == 403:
+            raise ForbiddenException(http_error_msg)
         elif response.status_code == 404:
             raise NotFound(http_error_msg)
         elif response.status_code == 422:
