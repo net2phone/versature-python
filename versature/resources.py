@@ -54,7 +54,7 @@ class User(object):
     def access_token(self, value):
         self._access_token = value
         if self.token_change_func:
-            self.token_change_func(self.username, self.access_token, self.refresh_token, self.expires, self.scope)
+            self.token_change_func(self.access_token, self.refresh_token, self.expires)
 
     @access_token.deleter
     def access_token(self):
@@ -66,10 +66,11 @@ class User(object):
         super(User, self).__setattr__(name, value)
 
     def update_from_authentication_result(self, result):
-        self.access_token = result.get('access_token', None)
         self.refresh_token = result.get('refresh_token', None)
         self.expires_in = result.get('expires_in', None)
         self.scope = result.get('scope', None)
+        self.access_token = result.get('access_token', None)
+
 
 
 class Versature(object):
