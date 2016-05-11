@@ -17,33 +17,31 @@ def obtain_access(func):
     @wraps(func)
     def retry_if_token_expired(self, *args, **kwargs):
         try:
-            if self.access_token is None:
+            if self.user.access_token is None:
                 self.authenticate()
 
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
             if self.refresh_token:
                 result = self.refresh_token_grant(self.refresh_token)
-                self.access_token = result['access_token']
+                self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
             else:
                 raise e
     return retry_if_token_expired
 
 
-class Versature(object):
+class User(object):
 
-    def __init__(self, username=None, password=None, access_token=None, refresh_token=None, client_id=CLIENT_ID,
-                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, request_handler=None, token_change_func=None):
+    def __init__(self, username=None, password=None, access_token=None, refresh_token=None,
+                 access_token_expires_in=None, scope=None, token_change_func=None):
         self.token_change_func = token_change_func
         self.username = username
         self.password = password
         self._access_token = access_token
         self.refresh_token = refresh_token
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.vendor_id = vendor_id
-        self.request_handler = request_handler
+        self.access_token_expires_in = access_token_expires_in
+        self.scope = scope
 
     @property
     def access_token(self):
@@ -53,24 +51,51 @@ class Versature(object):
     def access_token(self, value):
         self._access_token = value
         if self.token_change_func:
-            self.token_change_func(self.username, self._access_token, self.refresh_token)
+            self.token_change_func(self.username, self.access_token, self.refresh_token,
+                                   self.access_token_expires_in, self.scope)
 
     @access_token.deleter
     def access_token(self):
         del self._access_token
 
+    def update_from_authentication_result(self, result):
+        self.access_token = result.get('access_token', None)
+        self.refresh_token = result.get('refresh_token', None)
+        self.access_token_expires_in = result.get('expires_in', None)
+        self.scope = result.get('scope', None)
+
+class Versature(object):
+
+    def __init__(self, user=None, username=None, password=None, access_token=None, refresh_token=None,
+                 access_token_expires_in=None, client_id=CLIENT_ID, client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID,
+                 request_handler=None, token_change_func=None):
+        self.user = user
+
+        if user is None:
+            self.user = User(username=username, password=password, access_token=access_token,
+                             refresh_token=refresh_token, access_token_expires_in=access_token_expires_in,
+                             token_change_func=token_change_func)
+
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.vendor_id = vendor_id
+        self.request_handler = request_handler
+
     def authenticate(self):
+        """
+        Authenticate the current user
+        :return:
+        """
         # If already  have token then return
-        if self.access_token:
+        if self.user.access_token:
             return
 
-        if self.username and self.password:
-            result = self.password_grant(self.username, self.password)
-            self.access_token = result['access_token']
-            self.refresh_token = result.get('refresh_token', None)
+        if self.user.username and self.user.password:
+            result = self.password_grant(self.user.username, self.user.password)
+            self.user.update_from_authentication_result(result)
         elif self.client_id and self.client_secret:
             result = self.client_credentials_grant()
-            self.access_token = result['access_token']
+            self.user.update_from_authentication_result(result)
 
     def client_credentials_grant(self, **kwargs):
         """
@@ -138,7 +163,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         params = {'all': all}
         return authenticated_resource_request.request('GET', params=params, path='calls/')
 
@@ -153,7 +178,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
 
         params = {'to': to,
                   'from': fr,
@@ -170,7 +195,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
 
         data = {'id': id,
                 'to': to}
@@ -186,7 +211,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         path = 'calls/{id}'.format(id=id)
 
         return authenticated_resource_request.request('DELETE', path=path)
@@ -210,7 +235,7 @@ class Versature(object):
         :param all:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         params = {'start_date': start_date,
                   'end_date': end_date,
                   'type': type,
@@ -228,5 +253,5 @@ class Versature(object):
         Get the call queue stats
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.access_token, request_handler=self.request_handler, **kwargs)
+        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         return authenticated_resource_request.request('GET', path='call_queues/stats/')
