@@ -11,7 +11,7 @@ Create secret.py config file and add the: URL for the NetSapiens API, Client Id,
 
 secret.py 
 
-'''
+```
 VERSATURE_API_URL = 'https://integrate.versature.com/api'
 VERSATURE_CLIENT_ID = ''
 
@@ -28,4 +28,4 @@ BASIC_USER_PASSWORD = ''
 RESELLER_USER = ''
 RESELLER_DOMAIN = ''
 RESELLER_PASSWORD = ''
-'''
+```
