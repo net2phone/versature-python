@@ -2,22 +2,19 @@
 
 from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
-from .settings import VERSION, API_URL
 
 __author__ = 'DavidWard'
 
 
 class ResourceRequest(object):
 
-    def __init__(self, base_url=API_URL, api_version=VERSION, async=False, timeout=60, **kwargs):
-        self.base_url = base_url
+    def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None):
+        self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
-        self.request_handler = kwargs.pop('request_handler', None) or RequestHandler()
+        self.request_handler = request_handler or RequestHandler()
         self.async = async
         self.timeout = timeout
-        if kwargs:
-            raise TypeError('Unexpected **kwargs: %r', kwargs)
 
     @property
     def request_handler(self):
@@ -75,7 +72,7 @@ class ResourceRequest(object):
         if data:
             filter(None, data)
 
-        url = '%s/%s' % (self.base_url, path)
+        url = '%s/%s' % (self.api_url, path)
         if self.async:
             # Return a Future Object
             future = self.request_handler.request_async(method, url, params, data, headers, self.timeout)
@@ -160,7 +157,7 @@ class RequestHandler(RequestHandlerBase):
         elif response.status_code == 429:
             raise RateLimitExceeded(http_error_msg)
         elif http_error_msg:
-            raise HTTPError(http_error_msg, response, response.status_code)
+            raise HTTPError(http_error_msg, response.status_code)
 
     def request(self, method, url, params=None, data=None, headers=None, timeout=None, **kwargs):
         return self.resolve_future(self.session.request(method, url, params=params, data=data, headers=headers, timeout=timeout, **kwargs))

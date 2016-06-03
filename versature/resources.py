@@ -2,9 +2,9 @@
 from datetime import datetime, timedelta
 from functools import wraps
 
-from versature.settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID
+from versature.settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID, API_URL, API_VERSION
 from versature.request_handler import ResourceRequest, AuthenticatedResourceRequest
-from versature.exceptions import AuthenticationException
+from versature.exceptions import AuthenticationException, UnprocessableEntityError
 
 __author__ = 'DavidWard'
 
@@ -54,7 +54,7 @@ class User(object):
     def access_token(self, value):
         self._access_token = value
         if self.token_change_func:
-            self.token_change_func(self.access_token, self.refresh_token, self.expires)
+            self.token_change_func(self.username, self.access_token, self.refresh_token, self.expires, self.scope)
 
     @access_token.deleter
     def access_token(self):
@@ -72,12 +72,11 @@ class User(object):
         self.access_token = result.get('access_token', None)
 
 
-
 class Versature(object):
 
     def __init__(self, user=None, username=None, password=None, access_token=None, refresh_token=None,
-                 expires=None, expires_in=None, client_id=CLIENT_ID, client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID,
-                 token_change_func=None, request_handler=None):
+                 expires=None, expires_in=None, api_url=API_URL, api_version=API_VERSION, client_id=CLIENT_ID,
+                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, token_change_func=None, request_handler=None):
         self.user = user
 
         if user is None:
@@ -85,10 +84,39 @@ class Versature(object):
                              refresh_token=refresh_token, expires=expires, expires_in=expires_in,
                              token_change_func=token_change_func)
 
+        self.api_url = api_url
+        self.api_version = api_version
         self.client_id = client_id
         self.client_secret = client_secret
         self.vendor_id = vendor_id
         self.request_handler = request_handler
+
+    ########################
+    #### Helper Methods ####
+    ########################
+
+    def resource_request(self, api_version=None):
+        """
+        Make a request for a resource
+        :return:
+        """
+        api_version = api_version or self.api_version
+        return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler)
+
+    def authenticated_resource_request(self, api_version=None):
+        """
+        Make a request for an authenticated resource
+        :return:
+        """
+        api_version = api_version or self.api_version
+        return AuthenticatedResourceRequest(api_url=self.api_url,
+                                            api_version=api_version,
+                                            access_token=self.user.access_token,
+                                            request_handler=self.request_handler)
+
+    #######################
+    #### Authorization ####
+    #######################
 
     def authenticate(self):
         """
@@ -106,15 +134,13 @@ class Versature(object):
             result = self.client_credentials_grant()
             self.user.update_from_authentication_result(result)
 
-    def client_credentials_grant(self, **kwargs):
+    def client_credentials_grant(self):
         """
         Get an Access Token with the provided confidential client id and secret. No refresh token will be available
         for this grant type.
         :param kwargs:
         :return:
         """
-        resource_request = ResourceRequest(request_handler=self.request_handler, **kwargs)
-
         data = {'grant_type': 'client_credentials',
                 'client_id': self.client_id,
                 'client_secret': self.client_secret}
@@ -122,9 +148,9 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return resource_request.request('POST', path='oauth/token/', data=data)
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
 
-    def password_grant(self, username, password, **kwargs):
+    def password_grant(self, username, password):
         """
         Get an access token and possible refresh token given the username and password provided.
         NOTE. A valid client_id must be provided to authenticate this application.
@@ -133,8 +159,6 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        resource_request = ResourceRequest(request_handler=self.request_handler, **kwargs)
-
         data = {'grant_type': 'password',
                 'username': username,
                 'password': password,
@@ -143,9 +167,9 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return resource_request.request('POST', path='oauth/token/', data=data)
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
 
-    def refresh_token_grant(self, refresh_token, **kwargs):
+    def refresh_token_grant(self, refresh_token):
         """
         Refresh the provided token. If this operation is permitted for the
 
@@ -153,8 +177,6 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        resource_request = ResourceRequest(request_handler=self.request_handler, **kwargs)
-
         data = {'grant_type': 'refresh_token',
                 'refresh_token': refresh_token,
                 'client_id': self.client_id}
@@ -162,22 +184,25 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return resource_request.request('POST', path='oauth/token/', data=data)
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
+
+    ###############
+    #### Calls ####
+    ###############
 
     @obtain_access
-    def read_active_calls(self, all=False, **kwargs):
+    def read_active_calls(self, all=False):
         """
         Get a list of calls which are currently active/ongoin
         :param all:
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         params = {'all': all}
-        return authenticated_resource_request.request('GET', params=params, path='calls/')
+        return self.authenticated_resource_request().request('GET', params=params, path='calls/')
 
     @obtain_access
-    def place_call(self, fr, to, auto_answer=False, **kwargs):
+    def place_call(self, fr, to, auto_answer=False):
         """
         Place a call from a given user to a given destination. If support auto_answer will pick up/connect the call
         automatically.
@@ -187,16 +212,14 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
-
         params = {'to': to,
                   'from': fr,
                   'auto_answer': auto_answer}
 
-        return authenticated_resource_request.request('POST', params=params, path='calls/')
+        return self.authenticated_resource_request().request('POST', params=params, path='calls/')
 
     @obtain_access
-    def answer_call(self, id, to, **kwargs):
+    def answer_call(self, id, to):
         """
         Answer a call with the provided id
         :param id:
@@ -204,26 +227,27 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
-
         data = {'id': id,
                 'to': to}
         path = 'calls/{id}/answer/'.format(id=id)
 
-        return authenticated_resource_request.request('PUT', data=data, path=path)
+        return self.authenticated_resource_request().request('PUT', data=data, path=path)
 
     @obtain_access
-    def terminate_call(self, id, **kwargs):
+    def terminate_call(self, id):
         """
         Hang Up/End a call with the provided id
         :param id:
         :param kwargs:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         path = 'calls/{id}'.format(id=id)
+        return self.authenticated_resource_request().request('DELETE', path=path)
 
-        return authenticated_resource_request.request('DELETE', path=path)
+
+    ##############
+    #### CDRs ####
+    ##############
 
     # Types of CDRs which are identifiable
     CDR_TYPE_INBOUND = 'Inbound'
@@ -232,7 +256,7 @@ class Versature(object):
     CDR_TYPES = [CDR_TYPE_INBOUND, CDR_TYPE_OUTBOUND, CDR_TYPE_MISSED]
 
     @obtain_access
-    def get_cdrs(self, start_date=None, end_date=None, type=None, all=False, **kwargs):
+    def get_cdrs(self, start_date=None, end_date=None, type=None, all=False):
         """
         Get the call records for a given time period for the users specified. If provided the id will
         be used to get the call records for that user. If not specified call records will be fetched for the currently
@@ -244,7 +268,6 @@ class Versature(object):
         :param all:
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
         params = {'start_date': start_date,
                   'end_date': end_date,
                   'type': type,
@@ -252,15 +275,24 @@ class Versature(object):
 
         #TODO Create exception if argument doesn't match expected values.
         if type is not None:
-            assert (type in self.CDR_TYPES)
+            if type not in self.CDR_TYPES:
+                raise UnprocessableEntityError('%s is not a valid CDR Type. Expected one of: %s' % (type, self.CDR_TYPES))
 
-        return authenticated_resource_request.request('GET', path='cdrs/', params=params)
+        return self.authenticated_resource_request().request('GET', path='cdrs/', params=params)
+
+
+    #####################
+    #### Call Queues ####
+    #####################
 
     @obtain_access
-    def get_call_queue_stats(self, **kwargs):
+    def get_call_queue_stats(self, id=None):
         """
         Get the call queue stats
         :return:
         """
-        authenticated_resource_request = AuthenticatedResourceRequest(access_token=self.user.access_token, request_handler=self.request_handler, **kwargs)
-        return authenticated_resource_request.request('GET', path='call_queues/stats/')
+        path = 'call_queues/stats/'
+        if id:
+            path = '{path}{id}'.format(path=path, id=id)
+
+        return self.authenticated_resource_request().request('GET', path=path)

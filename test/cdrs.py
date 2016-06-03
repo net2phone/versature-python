@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from versature.resources import Versature
-from secrets import client_id, username, password, vendor_id
+from config import office_manager_config
 
 __author__ = 'DavidWard'
 
 
 class CDRsTest(unittest.TestCase):
 
-    def setUp(self):
-        self.versature = Versature(username=username, password=password, client_id=client_id, vendor_id=vendor_id)
-
-
     ##################
     #### Get CDRs ####
     ##################
 
-    def test_get_cdrs(self):
-        result = self.versature.get_cdrs()
+    def test_get_cdrs_for_domain_office_manager(self):
+        result = office_manager_config.versature.get_cdrs(all=True)
+        self.assertIsNotNone(result)
+
+    def test_get_cdrs_for_user_office_manager(self):
+        result = office_manager_config.versature.get_cdrs()
         self.assertIsNotNone(result)

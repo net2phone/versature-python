@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from test.secrets import client_id, username, password, vendor_id
 from versature.resources import Versature
-from secrets import client_id, username, password, vendor_id
 
 __author__ = 'DavidWard'
 

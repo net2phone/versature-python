@@ -8,57 +8,63 @@ class VersatureAPIException(Exception):
 
 class HTTPError(VersatureAPIException):
 
-    def __init__(self, msg, response=None, status_code=None):
-        super(HTTPError, self).__init__(msg)
-        self.response = response
+    def __init__(self, msg, status_code=None):
+        super(HTTPError, self).__init__()
+        self.msg = msg
         self.status_code = status_code
+
+    def __str__(self):
+        if self.status_code:
+            return 'Status Code: %s, %s' % (self.status_code, self.msg)
+        else:
+            return self.msg
 
 
 class NotFound(HTTPError):
     """
     The requested resource was not found
     """
-    def __init__(self, msg):
-        super(NotFound, self).__init__(msg or 'The requested resource was not found.', 403)
+    def __init__(self, msg='The requested resource was not found.'):
+        super(NotFound, self).__init__(msg, 403)
 
 
 class RateLimitExceeded(HTTPError):
     """
     The request limit for the endpoint has been exceeded.
     """
-    def __init__(self, msg):
-        super(RateLimitExceeded, self).__init__(msg or 'Rate limit exceeded for this endpoint', 429)
+    def __init__(self, msg='Rate limit exceeded for this endpoint'):
+        super(RateLimitExceeded, self).__init__(msg, 429)
 
 
 class ForbiddenException(HTTPError):
     """
 
     """
-    def __init__(self, msg):
-        super(ForbiddenException, self).__init__(msg or 'The request failed because the user does not have access to this resource.', 403)
+    def __init__(self, msg='The request failed because the user does not have access to this resource.'):
+        super(ForbiddenException, self).__init__(msg, 403)
 
 
 class AuthenticationException(HTTPError):
     """
     """
-    def __init__(self, msg):
-        super(AuthenticationException, self).__init__(msg or 'The request failed because the user is not authenticated.', 401)
+    def __init__(self, msg='The request failed because the user is not authenticated.'):
+        super(AuthenticationException, self).__init__(msg, 401)
 
 
 class UnprocessableEntityError(HTTPError):
     """
     The request was understood, but contained an inappropriate value.
     """
-    def __init__(self, msg):
-        super(UnprocessableEntityError, self).__init__(msg or 'The request was understood, but contained an inappropriate value.', 422)
+    def __init__(self, msg='The request was understood, but contained an inappropriate value.'):
+        super(UnprocessableEntityError, self).__init__(msg, 422)
 
 
 class InternalError(HTTPError):
     """
     An Internal Error occurred while processing your request.
     """
-    def __init__(self, msg):
-        super(InternalError, self).__init__(msg or 'An Internal Error occurred while processing your request.', 500)
+    def __init__(self, msg='An Internal Error occurred while processing your request.'):
+        super(InternalError, self).__init__(msg, 500)
 
 
 class AsyncLookupRequired(VersatureAPIException):
@@ -67,8 +73,11 @@ class AsyncLookupRequired(VersatureAPIException):
         super(AsyncLookupRequired, self).__init__(source, action)
         self.source = source
         self.action = action
-        #self.partial_result = None
 
 
 class ContentTypeNotSupported(VersatureAPIException):
-    pass
+    """
+    The content type found is not recognized or supported.
+    """
+    def __init__(self, msg='The content type found is not recognized or supported'):
+        super(ContentTypeNotSupported, self).__init__(msg, 500)
