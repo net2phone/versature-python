@@ -1,4 +1,6 @@
-A python implementation to connect to Versature's API 
+# A python SDK for Versature's API
+
+[API Documentation] (integrate.versature.com/apidoc/)
 
 
 #######################
@@ -9,6 +11,7 @@ Create secret.py config file and add the: URL for the NetSapiens API, Client Id,
 
 secret.py 
 
+'''
 VERSATURE_API_URL = 'https://integrate.versature.com/api'
 VERSATURE_CLIENT_ID = ''
 
@@ -25,3 +28,4 @@ BASIC_USER_PASSWORD = ''
 RESELLER_USER = ''
 RESELLER_DOMAIN = ''
 RESELLER_PASSWORD = ''
+'''
