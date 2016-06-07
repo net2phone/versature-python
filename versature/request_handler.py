@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
-
+import logging
 from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
 
 __author__ = 'DavidWard'
 
+_logger = logging.getLogger(__name__)
+# Add NullHandler to prevent logging warnings on startup
+null_handler = logging.NullHandler()
+_logger.addHandler(null_handler)
 
 class ResourceRequest(object):
 
@@ -138,26 +142,23 @@ class RequestHandler(RequestHandlerBase):
         :param status_code:
         :return:
         """
-        http_error_msg = ''
-
-        if 400 <= response.status_code < 500:
-            http_error_msg = '%s Client Error: %s' % (response.status_code, response.reason)
-
-        elif 500 <= response.status_code < 600:
-            http_error_msg = '%s Server Error: %s' % (response.status_code, response.reason)
 
         if response.status_code == 401:
-            raise AuthenticationException(http_error_msg)
+            _logger.warn(response.reason)
+            raise AuthenticationException()
         elif response.status_code == 403:
-            raise ForbiddenException(http_error_msg)
+            _logger.warn(response.reason)
+            raise ForbiddenException()
         elif response.status_code == 404:
-            raise NotFound(http_error_msg)
+            _logger.warn(response.reason)
+            raise NotFound()
         elif response.status_code == 422:
-            raise UnprocessableEntityError(http_error_msg)
+            _logger.warn(response.reason)
+            raise UnprocessableEntityError()
         elif response.status_code == 429:
-            raise RateLimitExceeded(http_error_msg)
-        elif http_error_msg:
-            raise HTTPError(http_error_msg, response.status_code)
+            raise RateLimitExceeded()
+        elif 400 <= response.status_code < 600 and response.reason:
+            raise HTTPError(response.reason, response.status_code)
 
     def request(self, method, url, params=None, data=None, headers=None, timeout=None, **kwargs):
         return self.resolve_future(self.session.request(method, url, params=params, data=data, headers=headers, timeout=timeout, **kwargs))
