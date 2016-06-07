@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 null_handler = logging.NullHandler()
 _logger.addHandler(null_handler)
 
+
 class ResourceRequest(object):
 
     def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None):
@@ -19,6 +20,8 @@ class ResourceRequest(object):
         self.request_handler = request_handler or RequestHandler()
         self.async = async
         self.timeout = timeout
+        self.result = None
+        self.future = None
 
     @property
     def request_handler(self):
@@ -33,11 +36,10 @@ class ResourceRequest(object):
     def prepare_request(self, headers, params):
         pass
 
-    def resolve_future(self, future, get_content=True):
-        response = self.request_handler.resolve_future(future)
+    def resolve(self, get_content=True):
+        response = self.request_handler.resolve_future(self.future)
         if get_content:
-            content = self.parse_result(response)
-            return content
+            return self.parse_result(response)
         return response
 
     def parse_result(self, response, callback=None):
@@ -79,8 +81,8 @@ class ResourceRequest(object):
         url = '%s/%s' % (self.api_url, path)
         if self.async:
             # Return a Future Object
-            future = self.request_handler.request_async(method, url, params, data, headers, self.timeout)
-            return future
+            self.future = self.request_handler.request_async(method, url, params, data, headers, self.timeout)
+            return self
         else:
             response = self.request_handler.request(method, url, params, data, headers, self.timeout)
             return self.parse_result(response)

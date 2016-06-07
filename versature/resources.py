@@ -96,15 +96,15 @@ class Versature(object):
     #### Helper Methods ####
     ########################
 
-    def resource_request(self, api_version=None):
+    def resource_request(self, api_version=None, **kwargs):
         """
         Make a request for a resource
         :return:
         """
         api_version = api_version or self.api_version
-        return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler)
+        return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler, **kwargs)
 
-    def authenticated_resource_request(self, api_version=None):
+    def authenticated_resource_request(self, api_version=None, **kwargs):
         """
         Make a request for an authenticated resource
         :return:
@@ -113,7 +113,8 @@ class Versature(object):
         return AuthenticatedResourceRequest(api_url=self.api_url,
                                             api_version=api_version,
                                             access_token=self.user.access_token,
-                                            request_handler=self.request_handler)
+                                            request_handler=self.request_handler,
+                                            **kwargs)
 
     #######################
     #### Authorization ####
@@ -192,7 +193,7 @@ class Versature(object):
     ###############
 
     @obtain_access
-    def read_active_calls(self, all=False):
+    def read_active_calls(self, all=False, **kwargs):
         """
         Get a list of calls which are currently active/ongoin
         :param all:
@@ -200,10 +201,10 @@ class Versature(object):
         :return:
         """
         params = {'all': all}
-        return self.authenticated_resource_request().request('GET', params=params, path='calls/')
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path='calls/')
 
     @obtain_access
-    def place_call(self, fr, to, auto_answer=False):
+    def place_call(self, fr, to, auto_answer=False, **kwargs):
         """
         Place a call from a given user to a given destination. If support auto_answer will pick up/connect the call
         automatically.
@@ -217,10 +218,10 @@ class Versature(object):
                   'from': fr,
                   'auto_answer': auto_answer}
 
-        return self.authenticated_resource_request().request('POST', params=params, path='calls/')
+        return self.authenticated_resource_request(**kwargs).request('POST', params=params, path='calls/')
 
     @obtain_access
-    def answer_call(self, id, to):
+    def answer_call(self, id, to, **kwargs):
         """
         Answer a call with the provided id
         :param id:
@@ -232,10 +233,10 @@ class Versature(object):
                 'to': to}
         path = 'calls/{id}/answer/'.format(id=id)
 
-        return self.authenticated_resource_request().request('PUT', data=data, path=path)
+        return self.authenticated_resource_request(**kwargs).request('PUT', data=data, path=path)
 
     @obtain_access
-    def terminate_call(self, id):
+    def terminate_call(self, id, **kwargs):
         """
         Hang Up/End a call with the provided id
         :param id:
@@ -243,7 +244,7 @@ class Versature(object):
         :return:
         """
         path = 'calls/{id}'.format(id=id)
-        return self.authenticated_resource_request().request('DELETE', path=path)
+        return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
 
 
     ##############
@@ -257,7 +258,7 @@ class Versature(object):
     CDR_TYPES = [CDR_TYPE_INBOUND, CDR_TYPE_OUTBOUND, CDR_TYPE_MISSED]
 
     @obtain_access
-    def get_cdrs(self, start_date=None, end_date=None, type=None, all=False):
+    def get_cdrs(self, start_date=None, end_date=None, type=None, all=False, **kwargs):
         """
         Get the call records for a given time period for the users specified. If provided the id will
         be used to get the call records for that user. If not specified call records will be fetched for the currently
@@ -279,7 +280,7 @@ class Versature(object):
             if type not in self.CDR_TYPES:
                 raise UnprocessableEntityError('%s is not a valid CDR Type. Expected one of: %s' % (type, self.CDR_TYPES))
 
-        return self.authenticated_resource_request().request('GET', path='cdrs/', params=params)
+        return self.authenticated_resource_request(**kwargs).request('GET', path='cdrs/', params=params)
 
 
     #####################
@@ -287,7 +288,7 @@ class Versature(object):
     #####################
 
     @obtain_access
-    def get_call_queue_stats(self, id=None):
+    def get_call_queue_stats(self, id=None, **kwargs):
         """
         Get the call queue stats
         :return:
@@ -296,4 +297,4 @@ class Versature(object):
         if id:
             path = '{path}{id}'.format(path=path, id=id)
 
-        return self.authenticated_resource_request().request('GET', path=path)
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)

@@ -15,3 +15,8 @@ class CallQueuesTest(unittest.TestCase):
     def test_get_call_queues_stats(self):
         result = office_manager_config.versature.get_call_queue_stats()
         self.assertIsNotNone(result)
+
+    def test_get_call_queues_stats_async(self):
+        request = office_manager_config.versature.get_call_queue_stats(async=True)
+        result = request.resolve()
+        self.assertIsNotNone(result)
