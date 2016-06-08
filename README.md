@@ -1,4 +1,4 @@
-# A python SDK for Versature's API
+# A Python Library for Versature's REST API
 
 [API Documentation] (integrate.versature.com/apidoc/)
 
