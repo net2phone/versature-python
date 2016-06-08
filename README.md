@@ -10,7 +10,7 @@
 ```
 import versature import Versature
 
-v = Versature(username='xxxxxx', password='yyyyy', client_id='zzzzzzz', api_version='1.1.0')
+v = Versature(username='xxxxxx', password='yyyyy', client_id='zzzzzzz')
 my_active_calls = v.active_calls()
 
 ```
