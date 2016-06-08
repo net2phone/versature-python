@@ -2,9 +2,9 @@
 from datetime import datetime, timedelta
 from functools import wraps
 
-from versature.settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID, API_URL, API_VERSION
-from versature.request_handler import ResourceRequest, AuthenticatedResourceRequest
-from versature.exceptions import AuthenticationException, UnprocessableEntityError
+from .settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID, API_URL, API_VERSION
+from .request_handler import ResourceRequest, AuthenticatedResourceRequest
+from .exceptions import AuthenticationException, UnprocessableEntityError
 
 __author__ = 'DavidWard'
 
@@ -193,9 +193,9 @@ class Versature(object):
     ###############
 
     @obtain_access
-    def read_active_calls(self, all=False, **kwargs):
+    def active_calls(self, all=False, **kwargs):
         """
-        Get a list of calls which are currently active/ongoin
+        Get a list of calls which are currently active/ongoing
         :param all:
         :param kwargs:
         :return:
@@ -239,6 +239,7 @@ class Versature(object):
     def terminate_call(self, id, **kwargs):
         """
         Hang Up/End a call with the provided id
+
         :param id:
         :param kwargs:
         :return:
@@ -258,11 +259,13 @@ class Versature(object):
     CDR_TYPES = [CDR_TYPE_INBOUND, CDR_TYPE_OUTBOUND, CDR_TYPE_MISSED]
 
     @obtain_access
-    def get_cdrs(self, start_date=None, end_date=None, type=None, all=False, **kwargs):
+    def cdrs(self, start_date=None, end_date=None, type=None, all=False, **kwargs):
         """
         Get the call records for a given time period for the users specified. If provided the id will
         be used to get the call records for that user. If not specified call records will be fetched for the currently
         authenticated user. If you wish to retrieve all calls across your domain use the "all" argument.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CDRsGroup-Get_Call_Detail_Records__CDR_s__for_one_or_more_users
 
         :param start_date:
         :param end_date:
@@ -288,13 +291,34 @@ class Versature(object):
     #####################
 
     @obtain_access
-    def get_call_queue_stats(self, id=None, **kwargs):
+    def call_queue_stats(self, id=None, **kwargs):
         """
-        Get the call queue stats
+        Get the current stats for one or more call queues.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesGroup-Get_call_queue_stats
+
+        :param id: The user id of the queue you wish to receive stats for.
         :return:
         """
         path = 'call_queues/stats/'
         if id:
             path = '{path}{id}'.format(path=path, id=id)
 
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    ####################
+    #### Caller Id ####
+    ####################
+
+    @obtain_access
+    def caller_ids(self, id, **kwargs):
+        """
+        Get the Social Caller Id details for the provided id.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallerIdGroup-Get_Caller_Id__Closed_Beta_
+
+        :param id: The user id of the caller you wish to receive information for.
+        :return:
+        """
+        path = 'caller_ids/{id}/'.format(id=id)
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)

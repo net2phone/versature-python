@@ -3,6 +3,22 @@
 [API Documentation] (integrate.versature.com/apidoc/)
 
 
+##########################################################
+### Example - Read active calls for authenticated user ###
+##########################################################
+
+```
+import versature import Versature
+
+username = 'xxxxx'
+password = 'yyyyy'
+client_id = 'zzzzzzzz'
+
+v = Versature(username='xxxxxx', password='yyyyy', client_id='zzzzzzz', api_version='1.1.0')
+my_active_calls = v.active_calls()
+
+```
+
 #######################
 ### Test Case Setup ###
 #######################

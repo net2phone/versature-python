@@ -13,9 +13,9 @@ class CDRsTest(unittest.TestCase):
     ##################
 
     def test_get_cdrs_for_domain_office_manager(self):
-        result = office_manager_config.versature.get_cdrs(all=True)
+        result = office_manager_config.versature.cdrs(all=True)
         self.assertIsNotNone(result)
 
     def test_get_cdrs_for_user_office_manager(self):
-        result = office_manager_config.versature.get_cdrs()
+        result = office_manager_config.versature.cdrs()
         self.assertIsNotNone(result)
