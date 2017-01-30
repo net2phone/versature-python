@@ -150,16 +150,16 @@ class RequestHandler(RequestHandlerBase):
         """
 
         if response.status_code == 401:
-            logging.warn(response.reason)
+            _logger.warn(response.reason)
             raise AuthenticationException()
         elif response.status_code == 403:
-            logging.warn(response.reason)
+            _logger.warn(response.reason)
             raise ForbiddenException()
         elif response.status_code == 404:
-            logging.warn(response.reason)
+            _logger.warn(response.reason)
             raise NotFound()
         elif response.status_code == 422:
-            logging.warn(response.reason)
+            _logger.warn(response.reason)
             raise UnprocessableEntityError()
         elif response.status_code == 429:
             raise RateLimitExceeded()
