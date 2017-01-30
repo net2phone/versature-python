@@ -3,6 +3,11 @@ import logging
 from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
 
+try:
+    from requests_futures.sessions import FuturesSession
+except ImportError:
+    pass
+
 __author__ = 'DavidWard'
 
 _logger = logging.getLogger(__name__)
@@ -29,7 +34,7 @@ class ResourceRequest(object):
 
     @request_handler.setter
     def request_handler(self, value):
-        if not isinstance(value, RequestHandlerBase):
+        if not issubclass(value, RequestHandlerBase):
             raise TypeError('Invalid Request Handler Provided. Must be subclass of RequestHandlerBase')
         self._request_handler = value
 
@@ -122,7 +127,6 @@ class RequestHandlerBase(object):
 class RequestHandler(RequestHandlerBase):
 
     def __init__(self):
-        from requests_futures.sessions import FuturesSession
         self.session = FuturesSession()
 
     @staticmethod
@@ -146,16 +150,16 @@ class RequestHandler(RequestHandlerBase):
         """
 
         if response.status_code == 401:
-            _logger.warn(response.reason)
+            logging.warn(response.reason)
             raise AuthenticationException()
         elif response.status_code == 403:
-            _logger.warn(response.reason)
+            logging.warn(response.reason)
             raise ForbiddenException()
         elif response.status_code == 404:
-            _logger.warn(response.reason)
+            logging.warn(response.reason)
             raise NotFound()
         elif response.status_code == 422:
-            _logger.warn(response.reason)
+            logging.warn(response.reason)
             raise UnprocessableEntityError()
         elif response.status_code == 429:
             raise RateLimitExceeded()
