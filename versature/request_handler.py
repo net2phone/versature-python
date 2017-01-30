@@ -148,23 +148,24 @@ class RequestHandler(RequestHandlerBase):
         :param status_code:
         :return:
         """
+        reason = getattr(response, 'reason', None)
 
         if response.status_code == 401:
-            _logger.warn(response.reason)
+            _logger.warn(reason)
             raise AuthenticationException()
         elif response.status_code == 403:
-            _logger.warn(response.reason)
+            _logger.warn(reason)
             raise ForbiddenException()
         elif response.status_code == 404:
-            _logger.warn(response.reason)
+            _logger.warn(reason)
             raise NotFound()
         elif response.status_code == 422:
-            _logger.warn(response.reason)
+            _logger.warn(reason)
             raise UnprocessableEntityError()
         elif response.status_code == 429:
             raise RateLimitExceeded()
-        elif 400 <= response.status_code < 600 and response.reason:
-            raise HTTPError(response.reason, response.status_code)
+        elif 400 <= response.status_code < 600 and reason:
+            raise HTTPError(reason, response.status_code)
 
     def request(self, method, url, params=None, data=None, headers=None, timeout=None, **kwargs):
         return self.resolve_future(self.session.request(method, url, params=params, data=data, headers=headers, timeout=timeout, **kwargs))
