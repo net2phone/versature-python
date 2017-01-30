@@ -22,7 +22,7 @@ class ResourceRequest(object):
         self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
-        self.request_handler = request_handler or RequestHandler
+        self.request_handler = request_handler or RequestHandler()
         self.async = async
         self.timeout = timeout
         self.result = None
