@@ -22,7 +22,7 @@ class ResourceRequest(object):
         self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
-        self.request_handler = request_handler or RequestHandler()
+        self.request_handler = request_handler or RequestHandler
         self.async = async
         self.timeout = timeout
         self.result = None
@@ -34,7 +34,7 @@ class ResourceRequest(object):
 
     @request_handler.setter
     def request_handler(self, value):
-        if not issubclass(value, RequestHandlerBase):
+        if not isinstance(value, RequestHandlerBase):
             raise TypeError('Invalid Request Handler Provided. Must be subclass of RequestHandlerBase')
         self._request_handler = value
 
