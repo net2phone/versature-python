@@ -164,7 +164,7 @@ class RequestHandler(RequestHandlerBase):
             raise UnprocessableEntityError()
         elif response.status_code == 429:
             raise RateLimitExceeded()
-        elif 400 <= response.status_code < 600 and reason:
+        elif 400 <= response.status_code < 600:
             raise HTTPError(reason, response.status_code)
 
     def request(self, method, url, params=None, data=None, headers=None, timeout=None, **kwargs):
