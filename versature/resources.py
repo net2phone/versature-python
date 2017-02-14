@@ -322,3 +322,21 @@ class Versature(object):
         """
         path = 'caller_ids/{id}/'.format(id=id)
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+
+    ####################
+    #### Users ####
+    ####################
+
+    @obtain_access
+    def users(self, id=None, **kwargs):
+        """
+        Get info about the user with the given id
+
+        :param id: The user/extension of the caller you wish to receive information for.
+        :return:
+        """
+        path = 'users/'
+        if id:
+            path = '{path}{id}/'.format(path=path, id=id)
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
