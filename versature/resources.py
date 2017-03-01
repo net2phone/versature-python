@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from dateutil import parser
 from functools import wraps
 
 from .settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID, API_URL, API_VERSION
@@ -23,8 +24,9 @@ def obtain_access(func):
 
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
-            if self.user.refresh_token and self.handle_token_refresh:
+            if self.user.refresh_token and self.user.handle_token_refresh:
                 result = self.refresh_token_grant(self.user.refresh_token)
+                self.user.expires = parser.parse(result['expires'])
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
             else:
@@ -55,7 +57,7 @@ class User(object):
     def access_token(self, value):
         self._access_token = value
         if self.token_change_func:
-            self.token_change_func(self.username, self.access_token, self.refresh_token, self.expires, self.scope)
+            self.token_change_func(self.access_token, self.refresh_token, self.expires)
 
     @access_token.deleter
     def access_token(self):
