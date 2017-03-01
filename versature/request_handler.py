@@ -56,7 +56,7 @@ class ResourceRequest(object):
     def get_content(self, response):
         return self.request_handler.get_content(response)
 
-    def request(self, method, path='', headers=None, params=None, data=None, urlencode_data=True):
+    def request(self, method, path='', headers=None, params=None, data=None, files=None):
         """
         Make a request
         :param method:
@@ -86,10 +86,10 @@ class ResourceRequest(object):
         url = '%s/%s' % (self.api_url, path)
         if self.async:
             # Return a Future Object
-            self.future = self.request_handler.request_async(method, url, params, data, headers, self.timeout, urlencode_data)
+            self.future = self.request_handler.request_async(method, url, params, data, files, headers, self.timeout)
             return self
         else:
-            response = self.request_handler.request(method, url, params, data, headers, self.timeout, urlencode_data)
+            response = self.request_handler.request(method, url, params, data, files, headers, self.timeout)
             return self.parse_result(response)
 
 
@@ -114,10 +114,10 @@ class RequestHandlerBase(object):
     def validate_response(response):
         raise NotImplementedError()
 
-    def request(self, method, url, params=None, data=None, headers=None, timeout=None, urlencode_data=True, **kwargs):
+    def request(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
         raise NotImplementedError()
 
-    def request_async(self, method, url, params=None, data=None, headers=None, timeout=None, urlencode_data=True, **kwargs):
+    def request_async(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
         raise NotImplementedError()
 
     def resolve_future(self, future):
@@ -167,10 +167,10 @@ class RequestHandler(RequestHandlerBase):
         elif 400 <= response.status_code < 600:
             raise HTTPError(reason, response.status_code)
 
-    def request(self, method, url, params=None, data=None, headers=None, timeout=None, urlencode_data=True, **kwargs):
-        return self.resolve_future(self.session.request(method, url, params=params, data=data, headers=headers, timeout=timeout, urlencode_data=urlencode_data, **kwargs))
+    def request(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
+        return self.resolve_future(self.session.request(method, url, params=params, data=data, files=files, headers=headers, timeout=timeout, **kwargs))
 
-    def request_async(self, method, url, params=None, data=None, headers=None, timeout=None, urlencode_data=True, **kwargs):
+    def request_async(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
         """
         Perform an async request. Can pass background_callback to be called with the result if desired
 
@@ -182,7 +182,7 @@ class RequestHandler(RequestHandlerBase):
         :param kwargs:
         :return:
         """
-        return self.session.request(method, url, params=params, data=data, headers=headers, timeout=timeout, urlencode_data=urlencode_data, **kwargs)
+        return self.session.request(method, url, params=params, data=data, files=files, headers=headers, timeout=timeout, **kwargs)
 
     def resolve_future(self, future):
         """
