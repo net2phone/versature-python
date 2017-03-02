@@ -12,8 +12,11 @@ class BaseAuthenticationTest(unittest.TestCase):
     #### Login With Username & Password ####
     ########################################
 
+    def setUp(self):
+        self.office_manager = office_manager_config()
+
     def test_authenticate(self):
-        result = office_manager_config.versature.password_grant(office_manager_config.username, office_manager_config.password)
+        result = self.office_manager.versature.password_grant(self.office_manager.username, self.office_manager.password)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])
@@ -22,7 +25,7 @@ class BaseAuthenticationTest(unittest.TestCase):
         self.assertEquals(result['token_type'], 'Bearer')
 
     def test_refresh_token(self):
-        result = office_manager_config.versature.password_grant(office_manager_config.username, office_manager_config.password)
+        result = self.office_manager.versature.password_grant(self.office_manager.username, self.office_manager.password)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])
@@ -32,7 +35,7 @@ class BaseAuthenticationTest(unittest.TestCase):
         access_token = result['access_token']
         refresh_token = result['refresh_token']
 
-        result = office_manager_config.versature.refresh_token_grant(refresh_token)
+        result = self.office_manager.versature.refresh_token_grant(refresh_token)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result['access_token'])
         self.assertIsNotNone(result['expires_in'])

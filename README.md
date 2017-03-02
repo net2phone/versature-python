@@ -10,8 +10,8 @@
 ```
 import versature import Versature
 
-v = Versature(username='xxxxxx', password='yyyyy', client_id='zzzzzzz')
-my_active_calls = v.active_calls()
+v = Versature(client_id='zzzzzzz', client_secret='xxxxxx')
+company_cdrs_for_last_seven_days = v.active_calls(all=True)
 
 ```
 
@@ -19,13 +19,14 @@ my_active_calls = v.active_calls()
 ### Test Case Setup ###
 #######################
 
-Create secret.py config file and add the: URL for the NetSapiens API, Client Id, Client Secret. Also a User, Domain, and Password for each of the roles is needed in order to test
+Create secret.py config file and add the: URL for Versature's API, Client Id, Client Secret. Also a User, Domain, and Password for each of the roles is needed in order to test
 
 ### secret.py 
 
 ```
 VERSATURE_API_URL = 'https://integrate.versature.com/api'
 VERSATURE_CLIENT_ID = ''
+VERSATURE_CLIENT_SECRET = ''
 
 CALL_QUEUE_USER = ''
 
