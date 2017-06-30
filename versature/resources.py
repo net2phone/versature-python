@@ -194,15 +194,23 @@ class Versature(object):
     ###############
 
     @obtain_access
-    def active_calls(self, all=False, **kwargs):
+    def active_calls(self, id=None, all=False, **kwargs):
         """
         Get a list of calls which are currently active/ongoing
+        
+        Documentation: http://integrate.versature.com/apidoc/#api-CallsGroup-List_Active_Calls
+        
         :param all:
         :param kwargs:
         :return:
         """
         params = {'all': all}
-        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path='calls/')
+
+        path = 'calls/'
+        if id:
+            path = '{path}{id}'.format(path=path, id=id)
+
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
 
     @obtain_access
     def place_call(self, fr, to, auto_answer=False, **kwargs):
@@ -253,24 +261,17 @@ class Versature(object):
     #### CDRs ####
     ##############
 
-    # Types of CDRs which are identifiable
-    CDR_TYPE_INBOUND = 'Inbound'
-    CDR_TYPE_OUTBOUND = 'Outbound'
-    CDR_TYPE_MISSED = 'Missed'
-    CDR_TYPES = [CDR_TYPE_INBOUND, CDR_TYPE_OUTBOUND, CDR_TYPE_MISSED]
-
     @obtain_access
-    def cdrs(self, start_date=None, end_date=None, type=None, all=False, offset=0, limit=100, **kwargs):
+    def cdrs(self, start_date=None, end_date=None, all=False, offset=0, limit=100, **kwargs):
         """
         Get the call records for a given time period for the users specified. If provided the id will
         be used to get the call records for that user. If not specified call records will be fetched for the currently
         authenticated user. If you wish to retrieve all calls across your domain use the "all" argument.
 
-        Documentation: http://integrate.versature.com/apidoc/#api-CDRsGroup-Get_Call_Detail_Records__CDR_s__for_one_or_more_users
+        Documentation: http://integrate.versature.com/apidoc/#api-CDRsGroup-Get_Call_Detail_Records__CDR_s__for_one_or_more_users_
 
         :param start_date:
         :param end_date:
-        :param type:
         :param all:
         :param offset: Offset the result by this amount.
         :param limit: Max 200, the number of results to be returned
@@ -278,14 +279,9 @@ class Versature(object):
         """
         params = {'start_date': start_date,
                   'end_date': end_date,
-                  'type': type,
                   'all': all,
                   'offset': offset,
                   'limit': limit}
-
-        if type is not None:
-            if type not in self.CDR_TYPES:
-                raise TypeError('%s is not a valid CDR Type. Expected one of: %s' % (type, self.CDR_TYPES))
 
         return self.authenticated_resource_request(**kwargs).request('GET', path='cdrs/', params=params)
 
@@ -295,47 +291,193 @@ class Versature(object):
     #####################
 
     @obtain_access
-    def call_queue_stats(self, id=None, **kwargs):
+    def call_queue_stats(self, id=None, start_date=None, end_date=None, **kwargs):
         """
-        Get the current stats for one or more call queues.
+        Get the stats for one or more call queues.
 
-        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesGroup-Get_call_queue_stats
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesStats-Call_Queue_Stats
 
         :param id: The user id of the queue you wish to receive stats for.
+        :param start_date:
+        :param end_date:
         :return:
         """
         path = 'call_queues/stats/'
         if id:
             path = '{path}{id}'.format(path=path, id=id)
 
-        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+        params = {'start_date': start_date,
+                  'end_date': end_date}
 
-    ####################
-    #### Caller Id ####
-    ####################
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
-    def caller_ids(self, id, **kwargs):
+    def call_queue_live_stats(self, id=None, **kwargs):
         """
-        Get the Social Caller Id details for the provided id.
+        Get the current live stats for one or more call queues.
 
-        Documentation: http://integrate.versature.com/apidoc/#api-CallerIdGroup-Get_Caller_Id__Closed_Beta_
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesStats-Live_Call_Queue_Stats
 
-        :param id: The user id of the caller you wish to receive information for.
+        :param id: The user id of the queue you wish to receive stats for.
         :return:
         """
-        path = 'caller_ids/{id}/'.format(id=id)
+
+        if id:
+            path = 'call_queues/stats/{id}/live/'.format(id=id)
+        else:
+            path = 'call_queues/stats/live/'
+
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
+    @obtain_access
+    def call_queue_agent_stats(self, id=None, start_date=None, end_date=None, **kwargs):
+        """
+        Get the stats for agents for one or more call queues.
 
-    ####################
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesStats-Call_Queue_Agent_Stats
+
+        :param id: The user id of the agent you wish to receive stats for.
+        :param start_date:
+        :param end_date:
+        :return:
+        """
+
+        if id:
+            path = 'call_queues/agents/{id}/stats/'.format(id=id)
+        else:
+            path = 'call_queues/agents/stats/'
+
+        params = {'start_date': start_date,
+                  'end_date': end_date}
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
+
+    @obtain_access
+    def call_queue_abandoned_call_report(self, id=None, start_date=None, end_date=None, **kwargs):
+        """
+        Get a report indicating the volume of calls which were abandoned.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesReports-Call_Queue_Abandoned_Call_Report
+
+        :param id: The user id of the queue you wish to receive the report for.
+        :param start_date:
+        :param end_date:
+        :return:
+        """
+
+        if id:
+            path = 'call_queues/{id}/reports/abandoned_calls/'.format(id=id)
+        else:
+            path = 'call_queues/reports/abandoned_calls/'
+
+        params = {'start_date': start_date,
+                  'end_date': end_date}
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
+
+    # Types of periods which are identifiable
+    HOUR = 'hour'
+    DAY = 'day'
+    MONTH = 'month'
+    REPORT_PERIODS = [HOUR, DAY, MONTH]
+
+    @obtain_access
+    def call_queue_dialled_numbers_report(self, id=None, start_date=None, end_date=None, period=None, **kwargs):
+        """
+        Get a report indicating the number of calls handled by the call queues split into periods/ranges.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesReports-Call_Queue_Dialled_Number_Report
+
+        :param id: The user id of the queue you wish to receive the report for.
+        :param start_date:
+        :param end_date:
+        :param period:
+        :return:
+        """
+
+        if id:
+            path = 'call_queues/{id}/reports/dialled_numbers/'.format(id=id)
+        else:
+            path = 'call_queues/reports/dialled_numbers/'
+
+        if period is not None:
+            if period not in self.REPORT_PERIODS:
+                raise TypeError('%s is not a valid Period. Expected one of: %s' % (type, self.REPORT_PERIODS))
+
+        params = {'start_date': start_date,
+                  'end_date': end_date,
+                  'period': period}
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
+
+    @obtain_access
+    def call_queue_split_report(self, id=None, start_date=None, end_date=None, period=None, **kwargs):
+        """
+        Get a report indicating the number of calls handled by the call queues split into periods/ranges.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesReports-Call_Queue_Split_Report
+
+        :param id: The user id of the queue you wish to receive the report for.
+        :param start_date:
+        :param end_date:
+        :param period:
+        :return:
+        """
+
+        if id:
+            path = 'call_queues/{id}/reports/splits/'.format(id=id)
+        else:
+            path = 'call_queues/reports/splits/'
+
+        if period is not None:
+            if period not in self.REPORT_PERIODS:
+                raise TypeError('%s is not a valid Period. Expected one of: %s' % (type, self.REPORT_PERIODS))
+
+        params = {'start_date': start_date,
+                  'end_date': end_date,
+                  'period': period}
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
+
+    @obtain_access
+    def call_queue_terminating_agents_report(self, id=None, start_date=None, end_date=None, period=None, **kwargs):
+        """
+        Get a report indicating the volume of calls handled by the agents of the call queues.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueuesReports-Call_Queue_Terminating_Agent_Report
+
+        :param id: The user id of the queue you wish to receive the report for.
+        :param start_date:
+        :param end_date:
+        :param period:
+        :return:
+        """
+
+        if id:
+            path = 'call_queues/{id}/reports/terminating_agents/'.format(id=id)
+        else:
+            path = 'call_queues/reports/terminating_agents/'
+
+        if period is not None:
+            if period not in self.REPORT_PERIODS:
+                raise TypeError('%s is not a valid Period. Expected one of: %s' % (type, self.REPORT_PERIODS))
+
+        params = {'start_date': start_date,
+                  'end_date': end_date,
+                  'period': period}
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
+
+    ###############
     #### Users ####
-    ####################
+    ###############
 
     @obtain_access
     def users(self, id=None, **kwargs):
         """
         Get info about the user with the given id
+
+        Documentation: http://integrate.versature.com/apidoc/#api-UsersGroup-Get_one_or_more_Users
 
         :param id: The user/extension of the caller you wish to receive information for.
         :return:
@@ -343,4 +485,22 @@ class Versature(object):
         path = 'users/'
         if id:
             path = '{path}{id}/'.format(path=path, id=id)
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+
+    ####################
+    #### Recordings ####
+    ####################
+
+    @obtain_access
+    def recordings(self, id, **kwargs):
+        """
+        Get the call recording with the provided call id
+
+        Documentation: http://integrate.versature.com/apidoc/#api-RecordingsGroup-Get_Recordings_for_a_given_call
+
+        :param id: The call id for a device with recording enabled
+        :return:
+        """
+        path = 'recordings/{id}/'.format(id=id)
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
