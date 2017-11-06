@@ -48,10 +48,16 @@ class ResourceRequest(object):
         return response
 
     def parse_result(self, response, callback=None):
-        content = self.get_content(response)
+        """
+        Extract the content and headers from the response
+        :param response: 
+        :param callback: 
+        :return: 
+        """
+        content, headers = self.get_content(response)
         if callback:
-            callback(content)
-        return content
+            callback(content, headers)
+        return content, headers
 
     def get_content(self, response):
         return self.request_handler.get_content(response)
@@ -131,13 +137,19 @@ class RequestHandler(RequestHandlerBase):
 
     @staticmethod
     def get_content(response):
+        """
+        Extract the content and the response headers
+        
+        :param response: 
+        :return: 
+        """
         RequestHandler.validate_response(response)
         content_type = response.headers['content-type']
 
         if 'application/json' in content_type:
-            return response.json()
+            return response.json(), response.headers
         elif 'text/plain' in content_type:
-            return response.text
+            return response.text, response.headers
         else:
             raise ContentTypeNotSupported('Content Type: %s is not supported' % content_type)
 
