@@ -588,7 +588,7 @@ class Versature(object):
         :return:
         """
 
-        path = 'current_user/'
+        path = 'users/current_user/'
 
         result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
         return result
