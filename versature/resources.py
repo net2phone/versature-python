@@ -82,7 +82,7 @@ class CursorResponse(object):
     def __init__(self, data, headers):
         self.data = data
         self.more = headers.get('more', False)
-        self.cursor = headers.get('next_cursor', False)
+        self.cursor = headers.get('cursor', False)
 
 
 class Versature(object):
