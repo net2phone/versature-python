@@ -554,6 +554,24 @@ class Versature(object):
         result, _ = self.authenticated_resource_request(**kwargs).request('PUT', path=path)
         return result
 
+    #################
+    #### Account ####
+    #################
+
+    @obtain_access
+    def current_account(self, **kwargs):
+        """
+        Get info about the current account
+
+        :param user: The user/extension of the caller you wish to receive information for.
+        :return:
+        """
+
+        path = 'accounts/current/'
+
+        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
+        return result
+
     ###############
     #### Users ####
     ###############
@@ -588,7 +606,7 @@ class Versature(object):
         :return:
         """
 
-        path = 'users/current_user/'
+        path = 'users/current/'
 
         result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
         return result
