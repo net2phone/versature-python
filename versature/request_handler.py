@@ -56,8 +56,8 @@ class ResourceRequest(object):
         """
         content, headers = self.get_content(response)
         if callback:
-            callback(content, headers)
-        return content, headers
+            callback(content)
+        return content
 
     def get_content(self, response):
         return self.request_handler.get_content(response)

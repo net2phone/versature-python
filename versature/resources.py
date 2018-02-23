@@ -162,8 +162,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        result, _ = self.resource_request().request('POST', path='oauth/token/', data=data)
-        return result
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
 
     def password_grant(self, username, password):
         """
@@ -182,8 +181,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        result, _ = self.resource_request().request('POST', path='oauth/token/', data=data)
-        return result
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
 
     def refresh_token_grant(self, refresh_token):
         """
@@ -200,8 +198,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        result, _ = self.resource_request().request('POST', path='oauth/token/', data=data)
-        return result
+        return self.resource_request().request('POST', path='oauth/token/', data=data)
 
     ###############
     #### Calls ####
@@ -224,8 +221,7 @@ class Versature(object):
         else:
             path = 'calls/active/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     @obtain_access
     def place_call(self, fr, to, auto_answer=False, **kwargs):
@@ -242,8 +238,7 @@ class Versature(object):
                   'from': fr,
                   'auto_answer': auto_answer}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('POST', params=params, path='calls/')
-        return result
+        return self.authenticated_resource_request(**kwargs).request('POST', params=params, path='calls/')
 
     @obtain_access
     def answer_call(self, call_id, to, **kwargs):
@@ -260,8 +255,7 @@ class Versature(object):
         data = {'id': call_id,
                 'to': to}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('PUT', data=data, path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('PUT', data=data, path=path)
 
     @obtain_access
     def terminate_call(self, call_id, **kwargs):
@@ -273,8 +267,7 @@ class Versature(object):
         :return:
         """
         path = 'calls/{call_id}'.format(call_id=call_id)
-        result, _ = self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
 
     ##############
     #### CDRs ####
@@ -307,8 +300,7 @@ class Versature(object):
                   'offset': offset,
                   'limit': limit}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     #####################
     #### Call Queues ####
@@ -335,8 +327,7 @@ class Versature(object):
         params = {'start_date': start_date,
                   'end_date': end_date}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
     def call_queue_live_stats(self, queue=None, **kwargs):
@@ -354,8 +345,7 @@ class Versature(object):
         else:
             path = 'call_queues/stats/live/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     @obtain_access
     def call_queue_agent_stats(self, queue=None, start_date=None, end_date=None, **kwargs):
@@ -378,8 +368,7 @@ class Versature(object):
         params = {'start_date': start_date,
                   'end_date': end_date}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
     def call_queue_abandoned_call_report(self, queue=None, start_date=None, end_date=None, **kwargs):
@@ -402,8 +391,7 @@ class Versature(object):
         params = {'start_date': start_date,
                   'end_date': end_date}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     # Types of periods which are identifiable
     HOUR = 'hour'
@@ -438,8 +426,7 @@ class Versature(object):
                   'end_date': end_date,
                   'period': period}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
     def call_queue_split_report(self, queue=None, start_date=None, end_date=None, period=None, **kwargs):
@@ -468,8 +455,7 @@ class Versature(object):
                   'end_date': end_date,
                   'period': period}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
     def call_queue_terminating_agents_report(self, queue=None, start_date=None, end_date=None, period=None, **kwargs):
@@ -498,8 +484,7 @@ class Versature(object):
                   'end_date': end_date,
                   'period': period}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
     def call_queue_agents(self, queue=None, **kwargs):
@@ -517,8 +502,7 @@ class Versature(object):
         else:
             path = 'call_queues/agents/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     @obtain_access
     def log_agent_in(self, queue, agent, device, **kwargs):
@@ -534,8 +518,7 @@ class Versature(object):
         """
 
         path = 'call_queues/{queue}/agents/{agent}/devices/{device}/login/'.format(queue=queue, agent=agent, device=device)
-        result, _ = self.authenticated_resource_request(**kwargs).request('PUT', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('PUT', path=path)
 
     @obtain_access
     def log_agent_out(self, queue, agent, device, **kwargs):
@@ -551,8 +534,7 @@ class Versature(object):
         """
 
         path = 'call_queues/{queue}/agents/{agent}/devices/{device}/logout/'.format(queue=queue, agent=agent, device=device)
-        result, _ = self.authenticated_resource_request(**kwargs).request('PUT', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('PUT', path=path)
 
     #################
     #### Account ####
@@ -569,8 +551,7 @@ class Versature(object):
 
         path = 'accounts/current/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     ###############
     #### Users ####
@@ -592,8 +573,7 @@ class Versature(object):
         else:
             path = 'users/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     @obtain_access
     def current_user(self, **kwargs):
@@ -608,8 +588,7 @@ class Versature(object):
 
         path = 'users/current/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     #################
     #### Devices ####
@@ -631,8 +610,7 @@ class Versature(object):
         else:
             path = 'devices/'
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     ####################
     #### Recordings ####
@@ -649,8 +627,7 @@ class Versature(object):
         :return:
         """
         path = 'recordings/call_ids/{call_id}/'.format(call_id=call_id)
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     #######################
     #### Phone Numbers ####
@@ -664,8 +641,7 @@ class Versature(object):
         :param kwargs: 
         :return: 
         """
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path='phone_numbers/')
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path='phone_numbers/')
 
     ###########################
     #### Caller Id Numbers ####
@@ -679,8 +655,7 @@ class Versature(object):
         :param kwargs: 
         :return: 
         """
-        result, _ = self.authenticated_resource_request(**kwargs).request('GET', path='caller_id_numbers/')
-        return result
+        return self.authenticated_resource_request(**kwargs).request('GET', path='caller_id_numbers/')
 
     @obtain_access
     def add_caller_id_number(self, e164, description, **kwargs):
@@ -695,8 +670,7 @@ class Versature(object):
         params = {'e164': e164,
                   'description': description}
 
-        result, _ = self.authenticated_resource_request(**kwargs).request('POST', params=params, path='caller_id_numbers/')
-        return result
+        return self.authenticated_resource_request(**kwargs).request('POST', params=params, path='caller_id_numbers/')
 
     @obtain_access
     def update_caller_id_number(self, e164, description, **kwargs):
@@ -710,8 +684,7 @@ class Versature(object):
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
         params = {'description': description}
-        result, _ = self.authenticated_resource_request(**kwargs).request('PUT', params=params, path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('PUT', params=params, path=path)
 
     @obtain_access
     def delete_caller_id_number(self, e164, **kwargs):
@@ -723,5 +696,4 @@ class Versature(object):
         :return: 
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
-        result, _ = self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
-        return result
+        return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
