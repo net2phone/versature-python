@@ -16,7 +16,7 @@ setup(
     description='A python library for the Versature API',
     long_description=__doc__,
     py_modules=['versature python api'],
-    packages=find_packages(exclude=['test']),
+    packages=['versature'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
