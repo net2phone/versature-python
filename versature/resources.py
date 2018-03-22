@@ -697,3 +697,25 @@ class Versature(object):
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
         return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
+
+    @obtain_access
+    def voicemail_count(self, user=None, **kwargs):
+        """
+        Get the voicemail count for this user
+        :param user:
+        :param kwargs:
+        :return:
+        """
+        path = 'voicemails/users/{user}/count/'.format(user=user)
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    @obtain_access
+    def call_queues(self, **kwargs):
+        """
+        Get the call queues for this domain
+        :param self:
+        :param kwargs:
+        :return:
+        """
+        path = 'call_queues/'
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
