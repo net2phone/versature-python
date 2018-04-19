@@ -21,8 +21,7 @@ class Config(object):
         self.domain = domain
         self.password = password
         self.call_queue_user = call_queue_user
-        #self.storage = storage
-        self.storage = DictionaryStorage()
+        self.storage = storage
 
     @property
     def username(self):
