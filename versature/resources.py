@@ -89,7 +89,7 @@ class Versature(object):
 
     def __init__(self, user=None, username=None, password=None, access_token=None, refresh_token=None,
                  expires=None, expires_in=None, api_url=API_URL, api_version=API_VERSION, client_id=CLIENT_ID,
-                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, token_change_func=None, request_handler=None):
+                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, token_change_func=None, request_handler=None, storage=None):
         self.user = user
 
         if user is None:
@@ -103,20 +103,23 @@ class Versature(object):
         self.client_secret = client_secret
         self.vendor_id = vendor_id
         self.request_handler = request_handler
+        self.storage = storage
 
     ########################
     #### Helper Methods ####
     ########################
 
-    def resource_request(self, api_version=None, **kwargs):
+    def resource_request(self, api_version=None, use_storage=True, **kwargs):
         """
         Make a request for a resource
         :return:
         """
         api_version = api_version or self.api_version
-        return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler, **kwargs)
 
-    def authenticated_resource_request(self, api_version=None, **kwargs):
+        return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler,
+                               storage=self.storage if use_storage else None, **kwargs)
+
+    def authenticated_resource_request(self, api_version=None, use_storage=True, **kwargs):
         """
         Make a request for an authenticated resource
         :return:
@@ -126,6 +129,7 @@ class Versature(object):
                                             api_version=api_version,
                                             access_token=self.user.access_token,
                                             request_handler=self.request_handler,
+                                            storage=self.storage if use_storage else None
                                             **kwargs)
 
     #######################
@@ -162,7 +166,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request().request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
 
     def password_grant(self, username, password):
         """
@@ -181,7 +185,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request().request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
 
     def refresh_token_grant(self, refresh_token):
         """
@@ -198,7 +202,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request().request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
 
     ###############
     #### Calls ####
