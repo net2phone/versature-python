@@ -18,7 +18,7 @@ _logger.addHandler(null_handler)
 
 class ResourceRequest(object):
 
-    def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None):
+    def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None, storage=None, cache_timeout=60):
         self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
@@ -27,6 +27,9 @@ class ResourceRequest(object):
         self.timeout = timeout
         self.result = None
         self.future = None
+        self.storage_key = None
+        self.storage = storage
+        self.cache_timeout = cache_timeout
 
     @property
     def request_handler(self):
@@ -55,6 +58,10 @@ class ResourceRequest(object):
         :return: 
         """
         content, headers = self.get_content(response)
+
+        if self.storage:
+            self.storage.set(self.storage_key, content, self.cache_timeout)
+
         if callback:
             callback(content)
         return content
@@ -88,6 +95,14 @@ class ResourceRequest(object):
 
         if data and isinstance(data, dict):
             filter(None, data)
+
+        self.storage_key = None
+        if self.storage:
+            self.storage_key = self.storage.create_storage_key(path, params, data)
+            cached_result = self.storage.get(self.storage_key)
+            logging.info("Cached Result: {cached_result}".format(cached_result=cached_result))
+            if cached_result:
+                return cached_result
 
         url = '%s/%s' % (self.api_url, path)
         if self.async:
