@@ -129,7 +129,7 @@ class Versature(object):
                                             api_version=api_version,
                                             access_token=self.user.access_token,
                                             request_handler=self.request_handler,
-                                            storage=self.storage if use_storage else None
+                                            storage=self.storage if use_storage else None,
                                             **kwargs)
 
     #######################
