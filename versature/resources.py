@@ -109,7 +109,7 @@ class Versature(object):
     #### Helper Methods ####
     ########################
 
-    def resource_request(self, api_version=None, use_storage=True, **kwargs):
+    def resource_request(self, api_version=None, use_storage=False, **kwargs):
         """
         Make a request for a resource
         :return:
@@ -119,7 +119,7 @@ class Versature(object):
         return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler,
                                storage=self.storage if use_storage else None, **kwargs)
 
-    def authenticated_resource_request(self, api_version=None, use_storage=True, **kwargs):
+    def authenticated_resource_request(self, api_version=None, use_storage=False, **kwargs):
         """
         Make a request for an authenticated resource
         :return:
