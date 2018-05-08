@@ -123,6 +123,7 @@ class AuthenticatedResourceRequest(ResourceRequest):
     def prepare_request(self, headers, params):
         headers['Authorization'] = 'Bearer %s' % self.access_token
         headers['Accept'] = "application/vnd.integrate.v%s+json" % self.api_version
+        headers['Content-Type'] = 'Application/json; charset=utf-8'
 
 
 class RequestHandlerBase(object):
