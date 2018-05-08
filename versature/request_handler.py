@@ -192,22 +192,22 @@ class RequestHandler(RequestHandlerBase):
         """
         reason = getattr(response, 'reason', None)
 
-        if response.status_code == 401:
+        if self.get_status_code(response) == 401:
             _logger.warn(reason)
             raise AuthenticationException()
-        elif response.status_code == 403:
+        elif self.get_status_code(response) == 403:
             _logger.warn(reason)
             raise ForbiddenException()
-        elif response.status_code == 404:
+        elif self.get_status_code(response) == 404:
             _logger.warn(reason)
             raise NotFound()
-        elif response.status_code == 422:
+        elif self.get_status_code(response) == 422:
             _logger.warn(reason)
             raise UnprocessableEntityError()
-        elif response.status_code == 429:
+        elif self.get_status_code(response) == 429:
             raise RateLimitExceeded()
-        elif 400 <= response.status_code < 600:
-            raise HTTPError(reason, response.status_code)
+        elif 400 <= self.get_status_code(response) < 600:
+            raise HTTPError(reason, self.get_status_code(response))
 
     def request(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
         return self.resolve_future(self.request_async(method, url, params, data, files, headers, timeout, **kwargs))
