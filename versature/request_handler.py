@@ -128,12 +128,18 @@ class AuthenticatedResourceRequest(ResourceRequest):
 
 class RequestHandlerBase(object):
 
-    @staticmethod
-    def get_content(response):
+    def get_content(self, response):
         raise NotImplementedError()
 
-    @staticmethod
-    def validate_response(response):
+    def get_status_code(self, response):
+        """
+        Get the status code from the response object
+        :param response:
+        :return:
+        """
+        raise NotImplementedError()
+
+    def validate_response(self, response):
         raise NotImplementedError()
 
     def request(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
@@ -151,26 +157,34 @@ class RequestHandler(RequestHandlerBase):
     def __init__(self):
         self.session = FuturesSession()
 
-    @staticmethod
-    def get_content(response):
+    def get_content(self, response):
         """
         Extract the content and the response headers
         
         :param response: 
         :return: 
         """
-        RequestHandler.validate_response(response)
+        self.validate_response(response)
         content_type = response.headers['content-type']
 
-        if 'application/json' in content_type:
+        if self.get_status_code(response) == 204:
+            return None, response.headers
+        elif 'application/json' in content_type:
             return response.json(), response.headers
         elif 'text/plain' in content_type:
             return response.text, response.headers
         else:
             raise ContentTypeNotSupported('Content Type: %s is not supported' % content_type)
 
-    @staticmethod
-    def validate_response(response):
+    def get_status_code(self, response):
+        """
+        Get the status code from the response object
+        :param response:
+        :return:
+        """
+        return response.status_code
+
+    def validate_response(self, response):
         """
         Validate the provided response content and status code.
         :param status_code:
@@ -196,7 +210,7 @@ class RequestHandler(RequestHandlerBase):
             raise HTTPError(reason, response.status_code)
 
     def request(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
-        return self.resolve_future(self.session.request(method, url, params=params, data=data, files=files, headers=headers, timeout=timeout, **kwargs))
+        return self.resolve_future(self.request_async(method, url, params, data, files, headers, timeout, **kwargs))
 
     def request_async(self, method, url, params=None, data=None, files=None, headers=None, timeout=None, **kwargs):
         """
@@ -206,7 +220,9 @@ class RequestHandler(RequestHandlerBase):
         :param url:
         :param params:
         :param data:
+        :param files:
         :param headers:
+        :param timeout:
         :param kwargs:
         :return:
         """
