@@ -29,6 +29,10 @@ def obtain_access(func):
                 self.user.expires = parser.parse(result['expires'])
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
+            elif self.client_id and self.client_secret and self.user.token_change_func:
+                result = self.client_credentials_grant()
+                self.user.access_token = result['access_token']
+                return func(self, *args, **kwargs)
             else:
                 raise e
     return retry_if_token_expired
