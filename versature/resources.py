@@ -356,7 +356,7 @@ class Versature(object):
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     @obtain_access
-    def call_queue_agent_stats(self, queue=None, start_date=None, end_date=None, **kwargs):
+    def call_queue_agent_stats(self, queue=None, start_date=None, end_date=None, inbound=True, outbound=True, **kwargs):
         """
         Get the stats for agents for one or more call queues.
 
@@ -367,11 +367,16 @@ class Versature(object):
         :param end_date:
         :return:
         """
-
         if queue:
             path = 'call_queues/{queue}/agents/stats/'.format(queue=queue)
         else:
             path = 'call_queues/agents/stats/'
+
+        if not inbound:
+            path = path + 'outbound/'
+
+        if not outbound:
+            path = path + 'inbound/'
 
         params = {'start_date': start_date,
                   'end_date': end_date}
