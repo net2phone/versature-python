@@ -19,7 +19,6 @@ class CallQueuesTest(unittest.TestCase):
     #### Login Call Queue Stats #####
     #################################
 
-        """
     def test_get_call_queues_stats(self):
         result = self.office_manager.versature.call_queue_stats(start_date=self.one_day_ago, end_date=self.today)
         self.assertIsNotNone(result)
@@ -28,7 +27,7 @@ class CallQueuesTest(unittest.TestCase):
         request = self.office_manager.versature.call_queue_stats(async=True, start_date=self.one_day_ago, end_date=self.today)
         result = request.resolve()
         self.assertIsNotNone(result)
-        """
+
     def test_call_queue_agents_inbound_outbound(self):
-        request = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today, queue='8814')
+        request = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today, inbound=False, outbound=False, queue='8814')
         self.assertIsNotNone(request)

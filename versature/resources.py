@@ -378,6 +378,9 @@ class Versature(object):
         if not outbound:
             path = path + 'inbound/'
 
+        if not inbound and not outbound:
+            path = 'call_queues/{queue}/agents/stats/'.format(queue=queue) if queue else 'call_queues/agents/stats/'
+
         params = {'start_date': start_date,
                   'end_date': end_date}
 
