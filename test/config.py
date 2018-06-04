@@ -12,7 +12,8 @@ __author__ = 'DavidWard'
 
 class Config(object):
 
-    def __init__(self, api_url, client_id, user=None, domain=None, password=None, client_secret=None, vendor_id=None, call_queue_user=None, storage=None):
+    def __init__(self, api_url, client_id, user=None, domain=None, password=None, client_secret=None, vendor_id=None,
+                 call_queue_user=None, storage=None):
         self.api_url = api_url
         self.client_id = client_id
         self.client_secret = client_secret
@@ -34,20 +35,21 @@ class Config(object):
 
 
 def client_credential_config():
-    return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, client_secret=VERSATURE_CLIENT_SECRET)
+    return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, client_secret=VERSATURE_CLIENT_SECRET,
+                  storage=DictionaryStorage())
 
 
 def office_manager_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
                   user=OFFICE_MANAGER_USER, domain=OFFICE_MANAGER_DOMAIN, password=OFFICE_MANAGER_PASSWORD,
-                  call_queue_user=CALL_QUEUE_USER)
+                  call_queue_user=CALL_QUEUE_USER, storage=DictionaryStorage())
 
 
 def base_user_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
-                  user=BASIC_USER_USER, domain=BASIC_USER_DOMAIN, password=BASIC_USER_PASSWORD)
+                  user=BASIC_USER_USER, domain=BASIC_USER_DOMAIN, password=BASIC_USER_PASSWORD, storage=DictionaryStorage())
 
 
 def reseller_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
-                  user=RESELLER_USER, domain=RESELLER_DOMAIN, password=RESELLER_PASSWORD)
+                  user=RESELLER_USER, domain=RESELLER_DOMAIN, password=RESELLER_PASSWORD, storage=DictionaryStorage())

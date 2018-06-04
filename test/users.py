@@ -29,12 +29,11 @@ class UsersTest(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_get_current_user_cache(self):
-        #storage = self.dict_storage
 
-        result = self.office_manager.versature.current_user(cache_timeout=20)
+        result = self.office_manager.versature.current_user(cache_timeout=20, use_storage=True)
         self.assertIsNotNone(result)
 
         #time.sleep(25)
 
-        result = self.office_manager.versature.current_user()
+        result = self.office_manager.versature.current_user(use_storage=True)
         self.assertIsNotNone(result)

@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 __author__ = 'DavidWard'
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
 
 
 class Storage(object):
@@ -16,9 +24,9 @@ class Storage(object):
         Generate a key for this type of request
         :return:
         """
-        params_hash = hash(json.dumps(params, sort_keys=True)) if params else 0
-        data_hash = hash(json.dumps(data, sort_keys=True)) if data else 0
-        return '{name}_{param_hash}'.format(name=path, param_hash=abs(params_hash + data_hash))
+        params_hash = hash(json.dumps(params, sort_keys=True, default=json_serial)) if params else 0
+        data_hash = hash(json.dumps(data, sort_keys=True, default=json_serial)) if data else 0
+        return '{name}_{param_hash}_{data_hash}'.format(name=path, param_hash=abs(params_hash), data_hash=abs(data_hash))
 
     def get(self, key):
         """

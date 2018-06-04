@@ -69,16 +69,15 @@ class ResourceRequest(object):
     def get_content(self, response):
         return self.request_handler.get_content(response)
 
-    def request(self, method, path='', headers=None, params=None, data=None, files=None):
+    def request(self, method, path=None, headers=None, params=None, data=None, files=None):
         """
         Make a request
         :param method:
-        :param url:
+        :param path:
         :param headers:
         :param params:
         :param data:
-        :param timeout:
-        :param async:
+        :param files:
 
         :return:
         """
@@ -104,7 +103,7 @@ class ResourceRequest(object):
             if cached_result:
                 return cached_result
 
-        url = '%s/%s' % (self.api_url, path)
+        url = '%s/%s' % (self.api_url, path) if path else self.api_url
         if self.async:
             # Return a Future Object
             self.future = self.request_handler.request_async(method, url, params, data, files, headers, self.timeout)

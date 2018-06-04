@@ -121,7 +121,8 @@ class Versature(object):
         api_version = api_version or self.api_version
 
         return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler,
-                               storage=self.storage if use_storage else None, **kwargs)
+                               storage=self.storage if use_storage else None,
+                               **kwargs)
 
     def authenticated_resource_request(self, api_version=None, use_storage=False, **kwargs):
         """
@@ -603,7 +604,6 @@ class Versature(object):
         """
 
         path = 'users/current/'
-
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
     #################
