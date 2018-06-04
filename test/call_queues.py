@@ -24,6 +24,7 @@ class CallQueuesTest(unittest.TestCase):
     def setUp(self):
         self.office_manager = office_manager_config()
         self.one_day_ago = datetime.utcnow() - timedelta(days=1)
+        self.one_hour_ago = datetime.utcnow() - timedelta(hours=1)
         self.today = datetime.utcnow()
 
 
@@ -59,51 +60,113 @@ class CallQueuesTest(unittest.TestCase):
                                                                        cache_timeout=30, use_storage=True)
         self.assertIsNotNone(second_response)
 
-    def test_expected_response(self):
+    def test_expected_response_with_cache(self):
         expected_support_first_names = ['Andre', 'Jonathon', 'Sam', 'Kole', 'Frank', 'Cameron']
-
         expected_sdr_first_names = ['Tyler', 'Jason', 'Alexa', 'Dean']
 
-        def support_request():
+        def support_request_inbound():
 
-            support_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago,
+            support_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                     end_date=self.today,
                                                                                     inbound=True, outbound=False,
                                                                                     queue='8814',
                                                                                     cache_timeout=60, use_storage=True)
-            logging.info("Result: %s", support_response)
+            logging.info("Support Inbound Result: %s", support_response)
             self.assertIsNotNone(support_response)
 
             for agent in support_response:
+                self.assertIn(agent.get('first_name'), expected_support_first_names,
+                              'Found unexpected name in Support Inbound Response. Agent Data: %s' % agent)
 
-                self.assertIn(agent.get('first_name'), expected_support_first_names, 'Found unexpected name in Support Response. Agent Data: %s' % agent)
+        def sdr_request_inbound():
 
-                #if agent.get('first_name') not in expected_support_first_names:
-                #    logging.error('Found unexpected name in Support Response. Agent Data: %s', agent)
-                #    self.assertIn(agent.get('first_name'), expected_support_first_names)
-
-        def sdr_request():
-
-            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago,
-                                                                                    end_date=self.today,
-                                                                                    inbound=True, outbound=False,
-                                                                                    queue='8820',
-                                                                                    cache_timeout=60, use_storage=True)
-            logging.info("Result: %s", sdr_response)
+            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+                                                                                end_date=self.today,
+                                                                                inbound=True, outbound=False,
+                                                                                queue='8820',
+                                                                                cache_timeout=60, use_storage=True)
+            logging.info("SDR InboundResult: %s", sdr_response)
             self.assertIsNotNone(sdr_response)
 
             for agent in sdr_response:
                 self.assertIn(agent.get('first_name'), expected_sdr_first_names,
-                              'Found unexpected name in SDR Response. Agent Data: %s' % agent)
+                              'Found unexpected name in SDR Inbound Response. Agent Data: %s' % agent)
 
-                #if agent.get('first_name') not in expected_sdr_first_names:
-                #    logging.error('Found unexpected name in SDR Response. Agent Data: %s', agent)
-                #    self.assertIn(agent.get('first_name'), expected_sdr_first_names)
+        def sdr_request_outbound():
 
-        for x in xrange(1, 10):
-            logging.info("Begin Iteration")
-            support_request()
-            time.sleep(1)
-            sdr_request()
-            logging.info("Finish Iteration")
+            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+                                                                                end_date=self.today,
+                                                                                inbound=False, outbound=True,
+                                                                                queue='8820',
+                                                                                cache_timeout=60, use_storage=True)
+            logging.info("SDR Outbound Result: %s", sdr_response)
+            self.assertIsNotNone(sdr_response)
+
+            for agent in sdr_response:
+                self.assertIn(agent.get('first_name'), expected_sdr_first_names,
+                              'Found unexpected name in SDR Outbound Response. Agent Data: %s' % agent)
+
+        for x in xrange(1, 20):
             time.sleep(20)
+            logging.info("Begin Iteration")
+            support_request_inbound()
+            time.sleep(1)
+            sdr_request_inbound()
+            time.sleep(1)
+            sdr_request_outbound()
+            logging.info("Finish Iteration")
+            time.sleep(10)
+
+
+    def test_expected_response(self):
+        expected_support_first_names = ['Andre', 'Jonathon', 'Sam', 'Kole', 'Frank', 'Cameron']
+        expected_sdr_first_names = ['Tyler', 'Jason', 'Alexa', 'Dean']
+
+        def support_request_inbound():
+
+            support_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+                                                                                    end_date=self.today,
+                                                                                    inbound=True, outbound=False,
+                                                                                    queue='8814', use_storage=False)
+            logging.info("Support Inbound Result: %s", support_response)
+            self.assertIsNotNone(support_response)
+
+            for agent in support_response:
+                self.assertIn(agent.get('first_name'), expected_support_first_names,
+                              'Found unexpected name in Support Inbound Response. Agent Data: %s' % agent)
+
+        def sdr_request_inbound():
+
+            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+                                                                                end_date=self.today,
+                                                                                inbound=True, outbound=False,
+                                                                                queue='8820', use_storage=False)
+            logging.info("SDR InboundResult: %s", sdr_response)
+            self.assertIsNotNone(sdr_response)
+
+            for agent in sdr_response:
+                self.assertIn(agent.get('first_name'), expected_sdr_first_names,
+                              'Found unexpected name in SDR Inbound Response. Agent Data: %s' % agent)
+
+        def sdr_request_outbound():
+
+            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+                                                                                end_date=self.today,
+                                                                                inbound=False, outbound=True,
+                                                                                queue='8820', use_storage=False)
+            logging.info("SDR Outbound Result: %s", sdr_response)
+            self.assertIsNotNone(sdr_response)
+
+            for agent in sdr_response:
+                self.assertIn(agent.get('first_name'), expected_sdr_first_names,
+                              'Found unexpected name in SDR Outbound Response. Agent Data: %s' % agent)
+
+        for x in xrange(1, 60):
+            time.sleep(60)
+            logging.info("Begin Iteration")
+            support_request_inbound()
+            time.sleep(1)
+            sdr_request_inbound()
+            time.sleep(1)
+            sdr_request_outbound()
+            logging.info("Finish Iteration")
