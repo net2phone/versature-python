@@ -622,7 +622,7 @@ class Versature(object):
         """
 
         if user:
-            path = 'devices/{user}/'.format(user=user)
+            path = 'devices/users/{user}/'.format(user=user)
         else:
             path = 'devices/'
 
