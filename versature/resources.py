@@ -24,12 +24,12 @@ def obtain_access(func):
 
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
-            if self.user.refresh_token and self.user.token_change_func:
+            if self.user.refresh_token:
                 result = self.refresh_token_grant(self.user.refresh_token)
                 self.user.expires = parser.parse(result['expires'])
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
-            elif self.client_id and self.client_secret and self.user.token_change_func:
+            elif self.client_id and self.client_secret:
                 result = self.client_credentials_grant()
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
@@ -41,8 +41,7 @@ def obtain_access(func):
 class User(object):
 
     def __init__(self, username=None, password=None, access_token=None, refresh_token=None,
-                 expires=None, expires_in=None, scope=None, token_change_func=None):
-        self.token_change_func = token_change_func
+                 expires=None, expires_in=None, scope=None):
         self.username = username
         self.password = password
         self._access_token = access_token
@@ -59,8 +58,7 @@ class User(object):
     @access_token.setter
     def access_token(self, value):
         self._access_token = value
-        if self.token_change_func:
-            self.token_change_func(self.access_token, self.refresh_token, self.expires)
+        self.token_change()
 
     @access_token.deleter
     def access_token(self):
@@ -76,6 +74,13 @@ class User(object):
         self.expires_in = result.get('expires_in', None)
         self.scope = result.get('scope', None)
         self.access_token = result.get('access_token', None)
+
+    def token_change(self):
+        """
+        Function called when the access token is updated. Override for custom functionality when the token chagnes
+        :return:
+        """
+        pass
 
 
 class CursorResponse(object):
@@ -93,13 +98,12 @@ class Versature(object):
 
     def __init__(self, user=None, username=None, password=None, access_token=None, refresh_token=None,
                  expires=None, expires_in=None, api_url=API_URL, api_version=API_VERSION, client_id=CLIENT_ID,
-                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, token_change_func=None, request_handler=None, storage=None):
+                 client_secret=CLIENT_SECRET, vendor_id=VENDOR_ID, request_handler=None, storage=None):
         self.user = user
 
         if user is None:
             self.user = User(username=username, password=password, access_token=access_token,
-                             refresh_token=refresh_token, expires=expires, expires_in=expires_in,
-                             token_change_func=token_change_func)
+                             refresh_token=refresh_token, expires=expires, expires_in=expires_in)
 
         self.api_url = api_url
         self.api_version = api_version
