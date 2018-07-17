@@ -320,6 +320,23 @@ class Versature(object):
     #####################
 
     @obtain_access
+    def call_queues(self, queue=None, **kwargs):
+        """
+        Get a list of call queues in a domain. If provided the queue will be used to get the details for a specific Call Queue.
+
+        Documentation: http://integrate.versature.com/apidoc/#api-CallQueues-Call_Queues
+        :param queue:
+        :param kwargs:
+        :return:
+        """
+        if queue:
+            path = 'call_queues/{queue}/'.format(queue=queue)
+        else:
+            path = 'call_queues/'
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    @obtain_access
     def call_queue_stats(self, queue=None, start_date=None, end_date=None, **kwargs):
         """
         Get the stats for one or more call queues.
@@ -631,6 +648,18 @@ class Versature(object):
             path = 'devices/'
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    @obtain_access
+    def current_user_devices(self, **kwargs):
+        """
+        Get devices for the authenticated user
+
+        Documentation: http://integrate.versature.com/apidoc/#api-DeviceGroup-Current_User_Devices
+
+        :return:
+        """
+        return self.authenticated_resource_request(**kwargs).request('GET', path='devices/users/current/')
+
 
     ####################
     #### Recordings ####
