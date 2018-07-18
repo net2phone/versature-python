@@ -746,3 +746,77 @@ class Versature(object):
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
         return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
+
+
+#############################
+####### UNIT TESTS    #######
+#############################
+
+class VersatureUnitTest(Versature):
+
+    ###############
+    ## Integrate ##
+    ###############
+    @obtain_access
+    def test_integrate_call_queue_stats(self, scope, version, vendor_id, **kwargs):
+        """
+        call test case on integrate for call queue stats
+        :return: 
+        """
+        path = 'unit_tests/integrate/call_queues/stats/'
+        params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
+    @obtain_access
+    def test_integrate_cdrs(self, scope, version, vendor_id, **kwargs):
+        """
+        call test case on integrate for cdrs
+        :return: 
+        """
+        path = 'unit_tests/integrate/cdrs/'
+        params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
+    @obtain_access
+    def test_integrate_devices(self, scope, version, vendor_id, **kwargs):
+        """
+        call test case on integrate for devices
+        :return: 
+        """
+        path = 'unit_tests/integrate/devices/'
+        params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
+
+    ################
+    ## Netsapiens ##
+    ################
+    @obtain_access
+    def test_netsapiens_call_queue_stats(self, scope, url, **kwargs):
+        """
+        call test case on integrate for call queue stats
+        :return: 
+        """
+        path = 'unit_tests/netsapiens/call_queues/stats/'
+        params = {'scope': scope, 'netsapiens_url': url}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
+    @obtain_access
+    def test_netsapiens_cdrs(self, scope, url, **kwargs):
+        """
+        call test case on integrate for cdrs
+        :return: 
+        """
+        path = 'unit_tests/netsapiens/cdrs/'
+        params = {'scope': scope, 'netsapiens_url': url}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
+    @obtain_access
+    def test_netsapiens_devices(self, scope, url, **kwargs):
+        """
+        call test case on integrate for devices
+        :return: 
+        """
+        path = 'unit_tests/netsapiens/devices/'
+        params = {'scope': scope, 'netsapiens_url': url}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
