@@ -1,1 +1,2 @@
 requests-futures
+python-dateutil==2.6.1

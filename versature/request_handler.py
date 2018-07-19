@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import re
 import logging
+
+from dateutil import parser
+
 from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
     UnprocessableEntityError, AuthenticationException
 
@@ -150,6 +154,21 @@ class RequestHandlerBase(object):
     def resolve_future(self, future):
         raise NotImplementedError()
 
+    def datetime_parser(self, value):
+
+        for k, v in value.items():
+
+            if isinstance(v, basestring) and re.match('\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:(?:\+|\-)\d{2}:\d{2})?', v):
+                try:
+                    value[k] = parser.parse(v)
+                except ValueError:
+                    pass
+
+            elif isinstance(v, dict):
+                return self.datetime_parser(v)
+
+        return value
+
 
 class RequestHandler(RequestHandlerBase):
 
@@ -169,7 +188,7 @@ class RequestHandler(RequestHandlerBase):
         if self.get_status_code(response) == 204:
             return None, response.headers
         elif 'application/json' in content_type:
-            return response.json(), response.headers
+            return response.json(object_hook=self.datetime_parser), response.headers
         elif 'text/plain' in content_type:
             return response.text, response.headers
         else:
