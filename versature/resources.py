@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-from dateutil import parser
 from functools import wraps
 
 from .settings import CLIENT_ID, CLIENT_SECRET, VENDOR_ID, API_URL, API_VERSION
@@ -26,7 +25,7 @@ def obtain_access(func):
         except AuthenticationException as e:
             if self.user.refresh_token:
                 result = self.refresh_token_grant(self.user.refresh_token)
-                self.user.expires = parser.parse(result['expires'])
+                self.user.expires = result['expires']
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
             elif self.client_id and self.client_secret:
