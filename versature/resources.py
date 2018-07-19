@@ -612,19 +612,59 @@ class Versature(object):
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
+    #######################
+    #### Subscriptions ####
+    #######################
     @obtain_access
-    def current_user(self, **kwargs):
+    def create_subscription(self, post_uri, expires_in=7200, calls=False, cdrs=False, cdr_creation=False, recordings=False, recording_analytics=False, raw=False, user='*', **kwargs):
         """
-        Get info about the current user
-
-        Documentation: http://integrate.versature.com/apidoc/#api-UsersGroup-Current_User
-
-        :param user: The user/extension of the caller you wish to receive information for.
-        :return:
+        create a subscription
+        :param post_uri: 
+        :param expires_in: 
+        :param calls: 
+        :param cdrs: 
+        :param cdr_creation: 
+        :param recordings: 
+        :param recording_analytics: 
+        :param raw: 
+        :param user: 
+        :param kwargs: 
+        :return: 
         """
+        path = 'subscriptions/'
+        params = {'post_uri': post_uri,
+                  'expires_in': expires_in,
+                  'calls': calls,
+                  'cdrs': cdrs,
+                  'cdr_creation': cdr_creation,
+                  'recordings': recordings,
+                  'recording_analytics': recording_analytics,
+                  'raw': raw,
+                  'user': user}
 
-        path = 'users/current/'
+        return self.authenticated_resource_request(**kwargs).request('POST', path=path, params=params)
+
+    @obtain_access
+    def read_subscription(self, subscription_id, **kwargs):
+        """
+        get info about subscription
+        :param subscription_id: 
+        :param kwargs: 
+        :return: 
+        """
+        path = 'subscriptions/{subscriptions_id}'.format(subscriptions_id=subscription_id)
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    @obtain_access
+    def delete_subscription(self, subscription_id, **kwargs):
+        """
+        delete subscription
+        :param subscription_id: 
+        :param kwargs: 
+        :return: 
+        """
+        path = 'subscriptions/{subscriptions_id}'.format(subscriptions_id=subscription_id)
+        return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
 
     #################
     #### Devices ####
