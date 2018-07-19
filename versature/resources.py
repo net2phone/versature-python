@@ -684,7 +684,7 @@ class Versature(object):
         if user:
             path = 'devices/users/{user}/'.format(user=user)
         else:
-            path = 'devices/'
+            path = 'devices/users/'
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
