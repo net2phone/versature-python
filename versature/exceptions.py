@@ -25,7 +25,7 @@ class NotFound(HTTPError):
     The requested resource was not found
     """
     def __init__(self, msg='The requested resource was not found.'):
-        super(NotFound, self).__init__(msg, 403)
+        super(NotFound, self).__init__(msg, 404)
 
 
 class RateLimitExceeded(HTTPError):
