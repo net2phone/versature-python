@@ -826,6 +826,20 @@ class VersatureUnitTest(Versature):
         params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
         return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
 
+    @obtain_access
+    def test_integrate_subscriptions_calls(self, scope, version, vendor_id, **kwargs):
+        """
+        call test case for call subscriptions
+        :param scope: 
+        :param version: 
+        :param vendor_id: 
+        :param kwargs: 
+        :return: 
+        """
+        path = 'unit_tests/integrate/subscriptions/calls/'
+        params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
+        return self.authenticated_resource_request(**kwargs).request('GET', params=params, path=path)
+
 
     ################
     ## Netsapiens ##
