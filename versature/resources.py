@@ -612,6 +612,20 @@ class Versature(object):
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
+
+    @obtain_access
+    def current_user(self, **kwargs):
+        """
+        Get info about the current user
+        Documentation: http://integrate.versature.com/apidoc/#api-UsersGroup-Current_User
+        :param user: The user/extension of the caller you wish to receive information for.
+        :return:
+        """
+
+        path = 'users/current/'
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
     #######################
     #### Subscriptions ####
     #######################
