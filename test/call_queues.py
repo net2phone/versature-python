@@ -14,7 +14,8 @@ import unittest
 import time
 from datetime import datetime, timedelta
 
-from config import office_manager_config
+from config import office_manager_config, call_center_supervisor_config
+from config import reseller_config
 
 __author__ = 'DavidWard'
 
@@ -23,10 +24,15 @@ class CallQueuesTest(unittest.TestCase):
 
     def setUp(self):
         self.office_manager = office_manager_config()
+        self.call_center_supervisor = call_center_supervisor_config()
+        self.reseller = reseller_config()
         self.one_day_ago = datetime.utcnow() - timedelta(days=1)
         self.one_hour_ago = datetime.utcnow() - timedelta(hours=1)
         self.today = datetime.utcnow()
 
+    def test_call_queue_agents(self):
+        result = self.call_center_supervisor.versature.call_queue_agents(queue=None)
+        self.assertIsNotNone(result)
 
     #################################
     #### Login Call Queue Stats #####
@@ -43,7 +49,7 @@ class CallQueuesTest(unittest.TestCase):
 
     def test_call_queue_agents_inbound(self):
         result = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
-                                                                      inbound=True, outbound=False, queue='8820')
+                                                                      inbound=True, outbound=False, queue='8003')
         self.assertIsNotNone(result)
 
     def test_get_queue_agents_inbound(self):

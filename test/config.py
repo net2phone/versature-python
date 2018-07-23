@@ -4,7 +4,8 @@ from versature.storage import DictionaryStorage
 from versature.resources import Versature
 from secrets import VERSATURE_API_URL, VERSATURE_CLIENT_ID, VERSATURE_CLIENT_SECRET, VERSATURE_VENDOR_ID, OFFICE_MANAGER_USER, \
     OFFICE_MANAGER_DOMAIN, OFFICE_MANAGER_PASSWORD, BASIC_USER_USER, BASIC_USER_DOMAIN, BASIC_USER_PASSWORD, \
-    RESELLER_USER, RESELLER_DOMAIN, RESELLER_PASSWORD, CALL_QUEUE_USER
+    RESELLER_USER, RESELLER_DOMAIN, RESELLER_PASSWORD, CALL_QUEUE_USER, CALL_CENTER_SUPERVISOR_DOMAIN, \
+    CALL_CENTER_SUPERVISOR_USER, CALL_CENTER_SUPERVISOR_PASSWORD
 
 
 __author__ = 'DavidWard'
@@ -53,3 +54,9 @@ def base_user_config():
 def reseller_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
                   user=RESELLER_USER, domain=RESELLER_DOMAIN, password=RESELLER_PASSWORD, storage=DictionaryStorage())
+
+
+def call_center_supervisor_config():
+    return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
+                  user=CALL_CENTER_SUPERVISOR_USER, domain=CALL_CENTER_SUPERVISOR_DOMAIN, password=CALL_CENTER_SUPERVISOR_PASSWORD,
+                  call_queue_user=CALL_QUEUE_USER, storage=DictionaryStorage())

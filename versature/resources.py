@@ -23,17 +23,35 @@ def obtain_access(func):
 
             return func(self, *args, **kwargs)
         except AuthenticationException as e:
+
             if self.user.refresh_token:
-                result = self.refresh_token_grant(self.user.refresh_token)
-                self.user.expires = result['expires']
-                self.user.access_token = result['access_token']
-                return func(self, *args, **kwargs)
+
+                try:
+
+                    result = self.refresh_token_grant(self.user.refresh_token)
+                    self.user.expires = result['expires']
+                    self.user.access_token = result['access_token']
+                    return func(self, *args, **kwargs)
+
+                except AuthenticationException:
+
+                    # If we know the username and password then get a new set of tokens
+                    if self.user.username and self.user.password:
+                        result = self.password_grant(self.user.username, self.user.password)
+                        self.user.update_from_authentication_result(result)
+                        return func(self, *args, **kwargs)
+                    else:
+                        raise
+
             elif self.client_id and self.client_secret:
+
                 result = self.client_credentials_grant()
                 self.user.access_token = result['access_token']
                 return func(self, *args, **kwargs)
+
             else:
-                raise e
+                raise
+
     return retry_if_token_expired
 
 
@@ -264,8 +282,7 @@ class Versature(object):
 
         path = 'calls/{call_id}/answer/'.format(call_id=call_id)
 
-        data = {'id': call_id,
-                'to': to}
+        data = {'to': to}
 
         return self.authenticated_resource_request(**kwargs).request('PUT', data=data, path=path)
 
@@ -278,7 +295,7 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-        path = 'calls/{call_id}'.format(call_id=call_id)
+        path = 'calls/{call_id}/'.format(call_id=call_id)
         return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
 
     ##############
