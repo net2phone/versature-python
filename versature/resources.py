@@ -282,9 +282,9 @@ class Versature(object):
 
         path = 'calls/{call_id}/answer/'.format(call_id=call_id)
 
-        data = {'to': to}
+        params = {'to': to}
 
-        return self.authenticated_resource_request(**kwargs).request('PUT', data=data, path=path)
+        return self.authenticated_resource_request(**kwargs).request('PUT', params=params, path=path)
 
     @obtain_access
     def terminate_call(self, call_id, **kwargs):
@@ -322,7 +322,7 @@ class Versature(object):
         if user:
             path = 'cdrs/users/{user}/'.format(user=user)
         else:
-            path = 'cdrs/'
+            path = 'cdrs/users/'
 
         params = {'start_date': start_date,
                   'end_date': end_date,
