@@ -1,5 +1,7 @@
 # A Python Library for Versature's REST API
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e86699a31824482592c7d82bbae9c2e1)](https://app.codacy.com/app/Versature/versature-python?utm_source=github.com&utm_medium=referral&utm_content=Versature/versature-python&utm_campaign=badger)
+
 [API Documentation] (integrate.versature.com/apidoc/)
 
 
