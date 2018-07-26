@@ -303,7 +303,7 @@ class Versature(object):
     ##############
 
     @obtain_access
-    def cdrs(self, start_date=None, end_date=None, user=None, offset=0, limit=100, **kwargs):
+    def cdrs(self, start_date=None, end_date=None, user=None, offset=0, limit=100, page_size=20, cursor=None, **kwargs):
         """
         Get the call records for a given time period for the users specified. If provided the id will
         be used to get the call records for that user. If not specified call records will be fetched for the currently
@@ -327,7 +327,9 @@ class Versature(object):
         params = {'start_date': start_date,
                   'end_date': end_date,
                   'offset': offset,
-                  'limit': limit}
+                  'limit': limit,
+                  'page_size': page_size,
+                  'cursor': cursor}
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
