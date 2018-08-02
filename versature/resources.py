@@ -691,7 +691,7 @@ class Versature(object):
         delete subscription
         :param subscription_id:
         :param kwargs:
-        :return: 
+        :return:
         """
         path = 'subscriptions/{subscriptions_id}'.format(subscriptions_id=subscription_id)
         return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
@@ -775,7 +775,7 @@ class Versature(object):
     def phone_numbers(self, **kwargs):
         """
         Get available phone numbers for this domain
-    
+
         :param kwargs:
         :return:
         """

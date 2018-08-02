@@ -178,7 +178,7 @@ class RequestHandler(RequestHandlerBase):
     def get_content(self, response):
         """
         Extract the content and the response headers
-        
+
         :param response:
         :return:
         """
