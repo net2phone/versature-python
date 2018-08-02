@@ -4,7 +4,7 @@ import logging
 
 from dateutil import parser
 
-from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ForbiddenException, \
+from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ScopeException, \
     UnprocessableEntityError, AuthenticationException
 
 try:
@@ -215,7 +215,7 @@ class RequestHandler(RequestHandlerBase):
             raise AuthenticationException()
         elif self.get_status_code(response) == 403:
             _logger.warn(reason)
-            raise ForbiddenException()
+            raise ScopeException()
         elif self.get_status_code(response) == 404:
             _logger.warn(reason)
             raise NotFound()

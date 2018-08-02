@@ -44,6 +44,14 @@ class ForbiddenException(HTTPError):
         super(ForbiddenException, self).__init__(msg, 403)
 
 
+class ScopeException(ForbiddenException):
+    """
+
+    """
+    def __init__(self, msg='The request failed because the user does not have access to this resource.'):
+        super(ScopeException, self).__init__(msg)
+
+
 class AuthenticationException(HTTPError):
     """
     """

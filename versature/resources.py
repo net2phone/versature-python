@@ -628,7 +628,6 @@ class Versature(object):
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
-
     @obtain_access
     def current_user(self, **kwargs):
         """
@@ -645,6 +644,7 @@ class Versature(object):
     #######################
     #### Subscriptions ####
     #######################
+
     @obtain_access
     def create_subscription(self, post_uri, expires_in=7200, calls=False, cdrs=False, cdr_creation=False, recordings=False, recording_analytics=False, raw=False, user='*', **kwargs):
         """
@@ -799,7 +799,7 @@ class Versature(object):
     def add_caller_id_number(self, e164, description, **kwargs):
         """
         Add a caller id for this domain
-    
+
         :param e164:
         :param description:
         :param kwargs:
@@ -814,7 +814,7 @@ class Versature(object):
     def update_caller_id_number(self, e164, description, **kwargs):
         """
         Update the description for a caller id for this domain
-    
+
         :param e164:
         :param description:
         :param kwargs:
@@ -828,7 +828,7 @@ class Versature(object):
     def delete_caller_id_number(self, e164, **kwargs):
         """
         Remove the a caller id for this domain
-    
+
         :param e164:
         :param kwargs:
         :return:
