@@ -112,7 +112,7 @@ class CallQueuesTest(unittest.TestCase):
                 self.assertIn(agent.get('first_name'), expected_sdr_first_names,
                               'Found unexpected name in SDR Outbound Response. Agent Data: %s' % agent)
 
-        for x in xrange(1, 20):
+        for _ in xrange(1, 20):
             time.sleep(20)
             logging.info("Begin Iteration")
             support_request_inbound()
@@ -122,7 +122,6 @@ class CallQueuesTest(unittest.TestCase):
             sdr_request_outbound()
             logging.info("Finish Iteration")
             time.sleep(10)
-
 
     def test_expected_response(self):
         expected_support_first_names = ['Andre', 'Jonathon', 'Sam', 'Kole', 'Frank', 'Cameron']
@@ -167,7 +166,7 @@ class CallQueuesTest(unittest.TestCase):
                 self.assertIn(agent.get('first_name'), expected_sdr_first_names,
                               'Found unexpected name in SDR Outbound Response. Agent Data: %s' % agent)
 
-        for x in xrange(1, 60):
+        for _ in xrange(1, 60):
             time.sleep(60)
             logging.info("Begin Iteration")
             support_request_inbound()

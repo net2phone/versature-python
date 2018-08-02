@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import unittest
-import time
 
 from versature.storage import DictionaryStorage
 from config import office_manager_config, client_credential_config
@@ -32,8 +31,6 @@ class UsersTest(unittest.TestCase):
 
         result = self.office_manager.versature.current_user(cache_timeout=20, use_storage=True)
         self.assertIsNotNone(result)
-
-        #time.sleep(25)
 
         result = self.office_manager.versature.current_user(use_storage=True)
         self.assertIsNotNone(result)

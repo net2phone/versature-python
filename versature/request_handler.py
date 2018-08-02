@@ -57,11 +57,11 @@ class ResourceRequest(object):
     def parse_result(self, response, callback=None):
         """
         Extract the content and headers from the response
-        :param response: 
-        :param callback: 
-        :return: 
+        :param response:
+        :param callback:
+        :return:
         """
-        content, headers = self.get_content(response)
+        content, _ = self.get_content(response)
 
         if self.storage:
             self.storage.set(self.storage_key, content, self.cache_timeout)
@@ -179,8 +179,8 @@ class RequestHandler(RequestHandlerBase):
         """
         Extract the content and the response headers
         
-        :param response: 
-        :return: 
+        :param response:
+        :return:
         """
         self.validate_response(response)
         content_type = response.headers['content-type']

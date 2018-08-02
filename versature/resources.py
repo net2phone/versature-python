@@ -22,7 +22,7 @@ def obtain_access(func):
                 self.authenticate()
 
             return func(self, *args, **kwargs)
-        except AuthenticationException as e:
+        except AuthenticationException:
 
             if self.user.refresh_token:
 
@@ -238,9 +238,9 @@ class Versature(object):
     def active_calls(self, user=None, **kwargs):
         """
         Get a list of calls which are currently active/ongoing
-        
+
         Documentation: http://integrate.versature.com/apidoc/#api-CallsGroup-List_Active_Calls
-        
+
         :param user: The user to get active calls for
         :param kwargs:
         :return:
@@ -279,11 +279,8 @@ class Versature(object):
         :param kwargs:
         :return:
         """
-
         path = 'calls/{call_id}/answer/'.format(call_id=call_id)
-
         params = {'to': to}
-
         return self.authenticated_resource_request(**kwargs).request('PUT', params=params, path=path)
 
     @obtain_access
@@ -652,17 +649,17 @@ class Versature(object):
     def create_subscription(self, post_uri, expires_in=7200, calls=False, cdrs=False, cdr_creation=False, recordings=False, recording_analytics=False, raw=False, user='*', **kwargs):
         """
         create a subscription
-        :param post_uri: 
-        :param expires_in: 
-        :param calls: 
-        :param cdrs: 
-        :param cdr_creation: 
-        :param recordings: 
-        :param recording_analytics: 
-        :param raw: 
-        :param user: 
-        :param kwargs: 
-        :return: 
+        :param post_uri:
+        :param expires_in:
+        :param calls:
+        :param cdrs:
+        :param cdr_creation:
+        :param recordings:
+        :param recording_analytics:
+        :param raw:
+        :param user:
+        :param kwargs:
+        :return:
         """
         path = 'subscriptions/'
         params = {'post_uri': post_uri,
@@ -681,9 +678,9 @@ class Versature(object):
     def read_subscription(self, subscription_id, **kwargs):
         """
         get info about subscription
-        :param subscription_id: 
-        :param kwargs: 
-        :return: 
+        :param subscription_id:
+        :param kwargs:
+        :return:
         """
         path = 'subscriptions/{subscriptions_id}'.format(subscriptions_id=subscription_id)
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
@@ -692,8 +689,8 @@ class Versature(object):
     def delete_subscription(self, subscription_id, **kwargs):
         """
         delete subscription
-        :param subscription_id: 
-        :param kwargs: 
+        :param subscription_id:
+        :param kwargs:
         :return: 
         """
         path = 'subscriptions/{subscriptions_id}'.format(subscriptions_id=subscription_id)
@@ -734,6 +731,26 @@ class Versature(object):
 
 
     ####################
+    #### Voicemails ####
+    ####################
+
+    @obtain_access
+    def voicemails_count(self, user, **kwargs):
+        """
+        Count how many voicemails are present for the provided user
+
+        Documentation: http://integrate.versature.com/apidoc/#api-VoicemailsGroup-Voicemail_Count
+
+        :param user: The user/extension of the user you wish to receive the voicemail count for.
+        :return:
+        """
+
+        path = 'voicemails/users/{user}/count/'.format(user=user)
+
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+
+    ####################
     #### Recordings ####
     ####################
 
@@ -759,8 +776,8 @@ class Versature(object):
         """
         Get available phone numbers for this domain
     
-        :param kwargs: 
-        :return: 
+        :param kwargs:
+        :return:
         """
         return self.authenticated_resource_request(**kwargs).request('GET', path='phone_numbers/')
 
@@ -773,8 +790,8 @@ class Versature(object):
         """
         Get available caller id numbers for this domain
     
-        :param kwargs: 
-        :return: 
+        :param kwargs:
+        :return:
         """
         return self.authenticated_resource_request(**kwargs).request('GET', path='caller_id_numbers/')
 
@@ -783,10 +800,10 @@ class Versature(object):
         """
         Add a caller id for this domain
     
-        :param e164: 
-        :param description: 
-        :param kwargs: 
-        :return: 
+        :param e164:
+        :param description:
+        :param kwargs:
+        :return:
         """
         params = {'e164': e164,
                   'description': description}
@@ -798,10 +815,10 @@ class Versature(object):
         """
         Update the description for a caller id for this domain
     
-        :param e164: 
-        :param description: 
-        :param kwargs: 
-        :return: 
+        :param e164:
+        :param description:
+        :param kwargs:
+        :return:
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
         params = {'description': description}
@@ -812,9 +829,9 @@ class Versature(object):
         """
         Remove the a caller id for this domain
     
-        :param e164: 
-        :param kwargs: 
-        :return: 
+        :param e164:
+        :param kwargs:
+        :return:
         """
         path = 'caller_id_numbers/{e164}/'.format(e164=e164)
         return self.authenticated_resource_request(**kwargs).request('DELETE', path=path)
@@ -826,14 +843,11 @@ class Versature(object):
 
 class VersatureUnitTest(Versature):
 
-    ###############
-    ## Integrate ##
-    ###############
     @obtain_access
     def test_integrate_call_queue_stats(self, scope, version, vendor_id, **kwargs):
         """
         call test case on integrate for call queue stats
-        :return: 
+        :return:
         """
         path = 'unit_tests/integrate/call_queues/stats/'
         params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
@@ -843,7 +857,7 @@ class VersatureUnitTest(Versature):
     def test_integrate_cdrs(self, scope, version, vendor_id, **kwargs):
         """
         call test case on integrate for cdrs
-        :return: 
+        :return:
         """
         path = 'unit_tests/integrate/cdrs/'
         params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
@@ -853,7 +867,7 @@ class VersatureUnitTest(Versature):
     def test_integrate_devices(self, scope, version, vendor_id, **kwargs):
         """
         call test case on integrate for devices
-        :return: 
+        :return:
         """
         path = 'unit_tests/integrate/devices/'
         params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}
@@ -863,11 +877,11 @@ class VersatureUnitTest(Versature):
     def test_integrate_subscriptions_calls(self, scope, version, vendor_id, **kwargs):
         """
         call test case for call subscriptions
-        :param scope: 
-        :param version: 
-        :param vendor_id: 
-        :param kwargs: 
-        :return: 
+        :param scope:
+        :param version:
+        :param vendor_id:
+        :param kwargs:
+        :return:
         """
         path = 'unit_tests/integrate/subscriptions/calls/'
         params = {'scope': scope, 'api_version': version, 'vendor_id': vendor_id}

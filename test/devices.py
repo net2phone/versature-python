@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import unittest
-import time
 
 from versature.storage import DictionaryStorage
 from config import office_manager_config, client_credential_config

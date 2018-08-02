@@ -4,7 +4,7 @@ Versature's Rest API
 ------------
 
 """
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(

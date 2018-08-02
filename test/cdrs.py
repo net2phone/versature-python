@@ -19,6 +19,10 @@ class CDRsTest(unittest.TestCase):
     #### Get CDRs ####
     ##################
 
+    def test_calls_answer(self):
+        result = self.office_manager.versature.answer_call(call_id='33333333333', to='126m@versature.com')
+        self.assertIsNotNone(result)
+
     def test_get_cdrs_for_domain_office_manager(self):
         result = self.office_manager.versature.cdrs(start_date=self.one_day_ago)
         self.assertIsNotNone(result)
