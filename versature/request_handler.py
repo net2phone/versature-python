@@ -101,7 +101,7 @@ class ResourceRequest(object):
 
         self.storage_key = None
         if self.storage:
-            self.storage_key = self.storage.create_storage_key(path, params, data)
+            self.create_storage_key(path, params, data)
             cached_result = self.storage.get(self.storage_key)
             logging.info("Cached Result: {cached_result}".format(cached_result=cached_result))
             if cached_result:
@@ -116,6 +116,17 @@ class ResourceRequest(object):
             response = self.request_handler.request(method, url, params, data, files, headers, self.timeout)
             return self.parse_result(response)
 
+    def create_storage_key(self, path, params, data):
+        """
+        Create a storage key
+        :param path:
+        :param params:
+        :param data:
+        :return:
+        """
+        self.storage_key = self.storage.create_storage_key(access_token=None, api_version=self.api_version, path=path,
+                                                           params=params, data=data)
+
 
 class AuthenticatedResourceRequest(ResourceRequest):
 
@@ -127,6 +138,17 @@ class AuthenticatedResourceRequest(ResourceRequest):
         headers['Authorization'] = 'Bearer %s' % self.access_token
         headers['Accept'] = "application/vnd.integrate.v%s+json" % self.api_version
         headers['Content-Type'] = 'Application/json; charset=utf-8'
+
+    def create_storage_key(self, path, params, data):
+        """
+        Create a storage key
+        :param path:
+        :param params:
+        :param data:
+        :return:
+        """
+        self.storage_key = self.storage.create_storage_key(access_token=self.access_token, api_version=self.api_version,
+                                                           path=path, params=params, data=data)
 
 
 class RequestHandlerBase(object):
