@@ -19,9 +19,16 @@ class Storage(object):
     Base class to extend when implementing a storage backend.
     """
 
-    def create_storage_key(self, access_token, api_version, path, params, data):
+    @staticmethod
+    def create_storage_key(access_token, api_version, path, params, data):
         """
         Generate a key for this type of request
+
+        :param access_token:
+        :param api_version:
+        :param path:
+        :param params:
+        :param data:
         :return:
         """
         params_hash = hash(json.dumps(params, sort_keys=True, default=json_serial)) if params else 0
