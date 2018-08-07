@@ -183,11 +183,8 @@ class RequestHandlerBase(object):
             if isinstance(v, basestring) and re.match('\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:(?:\+|\-)\d{2}:\d{2})?', v):
                 try:
                     value[k] = parser.parse(v)
-                except ValueError:
-                    pass
-
-            elif isinstance(v, dict):
-                return self.datetime_parser(v)
+                except ValueError as value_error:
+                    logging.warning('Datetime format found but could not parse. Attribute: %s, Value: %s, error: %s', k, v, value_error)
 
         return value
 
