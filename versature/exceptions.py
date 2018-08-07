@@ -20,6 +20,14 @@ class HTTPError(VersatureAPIException):
             return self.msg
 
 
+class BadRequest(HTTPError):
+    """
+    The request was incorrect.
+    """
+    def __init__(self, msg='The request was incorrect.'):
+        super(BadRequest, self).__init__(msg, 400)
+
+
 class NotFound(HTTPError):
     """
     The requested resource was not found

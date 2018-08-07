@@ -5,7 +5,7 @@ import logging
 from dateutil import parser
 
 from .exceptions import HTTPError, NotFound, ContentTypeNotSupported, RateLimitExceeded, ScopeException, \
-    UnprocessableEntityError, AuthenticationException
+    UnprocessableEntityError, AuthenticationException, BadRequest
 
 try:
     from requests_futures.sessions import FuturesSession
@@ -229,7 +229,10 @@ class RequestHandler(RequestHandlerBase):
         """
         reason = getattr(response, 'reason', None)
 
-        if self.get_status_code(response) == 401:
+        if self.get_status_code(response) == 400:
+            _logger.warn(reason)
+            raise BadRequest()
+        elif self.get_status_code(response) == 401:
             _logger.warn(reason)
             raise AuthenticationException()
         elif self.get_status_code(response) == 403:
