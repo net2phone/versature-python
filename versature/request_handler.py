@@ -176,15 +176,28 @@ class RequestHandlerBase(object):
     def resolve_future(self, future):
         raise NotImplementedError()
 
-    def datetime_parser(self, value):
-
+    def json_parser(self, value):
+        """
+        Additional parsing of json response
+        :param value:
+        :return:
+        """
         for k, v in value.items():
 
             if isinstance(v, basestring) and re.match('\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:(?:\+|\-)\d{2}:\d{2})?', v):
+
                 try:
                     value[k] = parser.parse(v)
                 except ValueError as value_error:
                     logging.warning('Datetime format found but could not parse. Attribute: %s, Value: %s, error: %s', k, v, value_error)
+
+            # Convert Float values
+            elif isinstance(v, basestring) and re.match('\d*\.\d*', v):
+
+                try:
+                    value[k] = float(v)
+                except ValueError:
+                    pass
 
         return value
 
@@ -207,7 +220,7 @@ class RequestHandler(RequestHandlerBase):
         if self.get_status_code(response) == 204:
             return None, response.headers
         elif 'application/json' in content_type:
-            return response.json(object_hook=self.datetime_parser), response.headers
+            return response.json(object_hook=self.json_parser), response.headers
         elif 'text/plain' in content_type:
             return response.text, response.headers
         else:
