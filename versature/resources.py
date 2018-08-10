@@ -781,6 +781,18 @@ class Versature(object):
         """
         return self.authenticated_resource_request(**kwargs).request('GET', path='phone_numbers/')
 
+    def phone_number_portability(self, phone_number, **kwargs):
+        """
+        Determine if a number is portable to Versature
+
+        :param phone_number:
+        :param kwargs:
+        :return:
+        """
+
+        path = 'phone_numbers/portability/{phone_number}/'.format(phone_number=phone_number)
+        return self.resource_request(**kwargs).request('GET', paht=path)
+
     ###########################
     #### Caller Id Numbers ####
     ###########################
