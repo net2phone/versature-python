@@ -791,7 +791,7 @@ class Versature(object):
         """
 
         path = 'phone_numbers/portability/{phone_number}/'.format(phone_number=phone_number)
-        return self.resource_request(**kwargs).request('GET', paht=path)
+        return self.resource_request(**kwargs).request('GET', path=path)
 
     ###########################
     #### Caller Id Numbers ####
