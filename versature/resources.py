@@ -790,7 +790,7 @@ class Versature(object):
         :return:
         """
 
-        path = 'phone_numbers/portability/{phone_number}/'.format(phone_number=phone_number)
+        path = 'phone_numbers/{phone_number}/portability/'.format(phone_number=phone_number)
         return self.resource_request(**kwargs).request('GET', path=path)
 
     ###########################
