@@ -46,7 +46,15 @@ class ResourceRequest(object):
         self._request_handler = value
 
     def prepare_request(self, headers, params):
-        pass
+        """
+        Prepare the request headers for this request
+        :param headers:
+        :param params:
+        :return:
+        """
+        headers['Content-Type'] = 'Application/json; charset=utf-8'
+        if self.api_version:
+            headers['Accept'] = "application/vnd.integrate.v%s+json" % self.api_version
 
     def resolve(self, get_content=True):
         response = self.request_handler.resolve_future(self.future)
@@ -135,9 +143,14 @@ class AuthenticatedResourceRequest(ResourceRequest):
         super(AuthenticatedResourceRequest, self).__init__(**kwargs)
 
     def prepare_request(self, headers, params):
+        """
+        Prepare the request headers for this request
+        :param headers:
+        :param params:
+        :return:
+        """
+        super(AuthenticatedResourceRequest, self).prepare_request(headers, params)
         headers['Authorization'] = 'Bearer %s' % self.access_token
-        headers['Accept'] = "application/vnd.integrate.v%s+json" % self.api_version
-        headers['Content-Type'] = 'Application/json; charset=utf-8'
 
     def create_storage_key(self, path, params, data):
         """
