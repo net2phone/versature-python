@@ -540,7 +540,7 @@ class Versature(object):
         return self.authenticated_resource_request(**kwargs).request('GET', path=path, params=params)
 
     @obtain_access
-    def call_queue_agents(self, queue=None, **kwargs):
+    def call_queue_agents(self, queue, **kwargs):
         """
         Get info about the users
 
@@ -549,11 +549,8 @@ class Versature(object):
         :param queue: The queue you wish to receive information for.
         :return:
         """
+        path = 'call_queues/{queue}/agents/'.format(queue=queue)
 
-        if queue:
-            path = 'call_queues/{queue}/agents/'.format(queue=queue)
-        else:
-            path = 'call_queues/agents/'
 
         return self.authenticated_resource_request(**kwargs).request('GET', path=path)
 
