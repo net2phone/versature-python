@@ -130,27 +130,43 @@ class Versature(object):
         self.request_handler = request_handler
         self.storage = storage
 
+    def request_api_version(self, kwargs):
+        """
+        Determine the api version to use for the request
+        :param kwargs:
+        :return:
+        """
+
+        api_version = None
+        if 'api_version' in kwargs:
+            api_version = kwargs.pop('api_version')
+        elif self.api_version:
+            api_version = self.api_version
+
+        return api_version
+
     ########################
     #### Helper Methods ####
     ########################
 
-    def resource_request(self, api_version=None, use_storage=False, **kwargs):
+    def resource_request(self, use_storage=False, **kwargs):
         """
         Make a request for a resource
         :return:
         """
-        api_version = api_version or self.api_version
 
+        api_version = self.request_api_version(kwargs)
         return ResourceRequest(api_url=self.api_url, api_version=api_version, request_handler=self.request_handler,
                                storage=self.storage if use_storage else None,
                                **kwargs)
 
-    def authenticated_resource_request(self, api_version=None, use_storage=False, **kwargs):
+    def authenticated_resource_request(self, use_storage=False, **kwargs):
         """
         Make a request for an authenticated resource
         :return:
         """
-        api_version = api_version or self.api_version
+
+        api_version = self.request_api_version(kwargs)
         return AuthenticatedResourceRequest(api_url=self.api_url,
                                             api_version=api_version,
                                             access_token=self.user.access_token,
@@ -192,7 +208,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False, api_version=None, content_type=None).request('POST', path='oauth/token/', data=data)
 
     def password_grant(self, username, password):
         """
@@ -211,7 +227,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False, api_version=None, content_type=None).request('POST', path='oauth/token/', data=data)
 
     def refresh_token_grant(self, refresh_token):
         """
@@ -228,7 +244,7 @@ class Versature(object):
         if self.vendor_id:
             data['vendor_id'] = self.vendor_id
 
-        return self.resource_request(use_storage=False).request('POST', path='oauth/token/', data=data)
+        return self.resource_request(use_storage=False, api_version=None, content_type=None).request('POST', path='oauth/token/', data=data)
 
     ###############
     #### Calls ####

@@ -22,7 +22,8 @@ _logger.addHandler(null_handler)
 
 class ResourceRequest(object):
 
-    def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None, storage=None, cache_timeout=60):
+    def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None, storage=None,
+                 cache_timeout=60, content_type='Application/json; charset=utf-8'):
         self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
@@ -34,6 +35,7 @@ class ResourceRequest(object):
         self.storage_key = None
         self.storage = storage
         self.cache_timeout = cache_timeout
+        self.content_type = content_type
 
     @property
     def request_handler(self):
@@ -52,7 +54,9 @@ class ResourceRequest(object):
         :param params:
         :return:
         """
-        headers['Content-Type'] = 'Application/json; charset=utf-8'
+        if self.content_type:
+            headers['Content-Type'] = self.content_type
+
         if self.api_version:
             headers['Accept'] = "application/vnd.integrate.v%s+json" % self.api_version
 

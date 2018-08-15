@@ -34,3 +34,7 @@ class UsersTest(unittest.TestCase):
 
         result = self.office_manager.versature.current_user(use_storage=True)
         self.assertIsNotNone(result)
+
+    def test_voicemail_count(self):
+        result = self.office_manager.versature.voicemails_count(user=self.office_manager.user)
+        self.assertIsNotNone(result)
