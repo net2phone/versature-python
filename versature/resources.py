@@ -807,6 +807,21 @@ class Versature(object):
         return self.resource_request(**kwargs).request('GET', path=path)
 
     ###########################
+    #### Social Id Numbers ####
+    ###########################
+    @obtain_access
+    def social_caller_id(self, phone_number, **kwargs):
+        """
+        Get Caller Id Details for the provided phone_number
+        :param number: 
+        :param name: 
+        :param kwargs: 
+        :return: 
+        """
+        path = 'social_caller_ids/{phone_number}/'.format(phone_number=phone_number)
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path)
+
+    ###########################
     #### Caller Id Numbers ####
     ###########################
 
