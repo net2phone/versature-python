@@ -14,8 +14,10 @@ import unittest
 import time
 from datetime import datetime, timedelta
 
-from config import office_manager_config, call_center_supervisor_config
+from config import access_config
 from config import reseller_config
+
+from multiprocessing.dummy import Pool as ThreadPool
 
 __author__ = 'DavidWard'
 
@@ -23,15 +25,12 @@ __author__ = 'DavidWard'
 class CallQueuesTest(unittest.TestCase):
 
     def setUp(self):
-        self.office_manager = office_manager_config()
-        self.call_center_supervisor = call_center_supervisor_config()
-        self.reseller = reseller_config()
         self.one_day_ago = datetime.utcnow() - timedelta(days=1)
         self.one_hour_ago = datetime.utcnow() - timedelta(hours=1)
         self.today = datetime.utcnow()
 
     def test_call_queue_agents(self):
-        result = self.call_center_supervisor.versature.call_queue_agents(queue=None)
+        result = access_config.call_center_supervisor.versature.call_queue_agents(queue=None)
         self.assertIsNotNone(result)
 
     #################################
@@ -39,31 +38,53 @@ class CallQueuesTest(unittest.TestCase):
     #################################
 
     def test_get_call_queues_stats(self):
-        result = self.office_manager.versature.call_queue_stats(start_date=self.one_day_ago, end_date=self.today)
+        result = access_config.office_manager.versature.call_queue_stats(start_date=self.one_day_ago, end_date=self.today)
+        self.assertIsNotNone(result)
+
+    def test_get_call_queues_stats_multiple_requests(self):
+
+        result = access_config.office_manager.versature.call_queue_stats(start_date=self.one_day_ago, end_date=self.today)
+        self.assertIsNotNone(result)
+
+        result = access_config.office_manager.versature.call_queue_stats(start_date=self.one_day_ago, end_date=self.today)
+        self.assertIsNotNone(result)
+
+    def test_get_call_queues_stats_cache_timeout(self):
+        num_requests = 3
+        pool = ThreadPool(num_requests)
+
+        start_date = self.one_day_ago
+        end_date = self.today
+
+        def call_queue_test(*args, **kwargs):
+            result = access_config.office_manager.versature.call_queue_stats(start_date=start_date, end_date=end_date)
+            logging.debug("Call Queue Result: %s", result)
+
+        result = pool.map(call_queue_test, range(num_requests))
         self.assertIsNotNone(result)
 
     def test_get_call_queues_stats_async(self):
-        request = self.office_manager.versature.call_queue_stats(async=True, start_date=self.one_day_ago, end_date=self.today)
+        request = access_config.office_manager.versature.call_queue_stats(async=True, start_date=self.one_day_ago, end_date=self.today)
         result = request.resolve()
         self.assertIsNotNone(result)
 
     def test_call_queue_agents_inbound(self):
-        result = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
-                                                                      inbound=True, outbound=False, queue='8003')
+        result = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
+                                                                               inbound=True, outbound=False, queue='8003')
         self.assertIsNotNone(result)
 
     def test_get_queue_agents_inbound(self):
 
-        first_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
+        first_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
                                                                        inbound=True, outbound=False, queue='8814',
-                                                                       cache_timeout=30, use_storage=True)
+                                                                       cache_timeout=30)
         self.assertIsNotNone(first_response)
 
         time.sleep(30)
 
-        second_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
+        second_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_day_ago, end_date=self.today,
                                                                        inbound=True, outbound=False, queue='8814',
-                                                                       cache_timeout=30, use_storage=True)
+                                                                       cache_timeout=30)
         self.assertIsNotNone(second_response)
 
     def test_expected_response_with_cache(self):
@@ -72,11 +93,11 @@ class CallQueuesTest(unittest.TestCase):
 
         def support_request_inbound():
 
-            support_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            support_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                     end_date=self.today,
                                                                                     inbound=True, outbound=False,
                                                                                     queue='8814',
-                                                                                    cache_timeout=60, use_storage=True)
+                                                                                    cache_timeout=60)
             logging.info("Support Inbound Result: %s", support_response)
             self.assertIsNotNone(support_response)
 
@@ -86,11 +107,11 @@ class CallQueuesTest(unittest.TestCase):
 
         def sdr_request_inbound():
 
-            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            sdr_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                 end_date=self.today,
                                                                                 inbound=True, outbound=False,
                                                                                 queue='8820',
-                                                                                cache_timeout=60, use_storage=True)
+                                                                                cache_timeout=60)
             logging.info("SDR InboundResult: %s", sdr_response)
             self.assertIsNotNone(sdr_response)
 
@@ -100,11 +121,11 @@ class CallQueuesTest(unittest.TestCase):
 
         def sdr_request_outbound():
 
-            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            sdr_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                 end_date=self.today,
                                                                                 inbound=False, outbound=True,
                                                                                 queue='8820',
-                                                                                cache_timeout=60, use_storage=True)
+                                                                                cache_timeout=60)
             logging.info("SDR Outbound Result: %s", sdr_response)
             self.assertIsNotNone(sdr_response)
 
@@ -129,10 +150,10 @@ class CallQueuesTest(unittest.TestCase):
 
         def support_request_inbound():
 
-            support_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            support_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                     end_date=self.today,
                                                                                     inbound=True, outbound=False,
-                                                                                    queue='8814', use_storage=False)
+                                                                                    queue='8814')
             logging.info("Support Inbound Result: %s", support_response)
             self.assertIsNotNone(support_response)
 
@@ -142,10 +163,10 @@ class CallQueuesTest(unittest.TestCase):
 
         def sdr_request_inbound():
 
-            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            sdr_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                 end_date=self.today,
                                                                                 inbound=True, outbound=False,
-                                                                                queue='8820', use_storage=False)
+                                                                                queue='8820')
             logging.info("SDR InboundResult: %s", sdr_response)
             self.assertIsNotNone(sdr_response)
 
@@ -155,10 +176,10 @@ class CallQueuesTest(unittest.TestCase):
 
         def sdr_request_outbound():
 
-            sdr_response = self.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
+            sdr_response = access_config.office_manager.versature.call_queue_agent_stats(start_date=self.one_hour_ago,
                                                                                 end_date=self.today,
                                                                                 inbound=False, outbound=True,
-                                                                                queue='8820', use_storage=False)
+                                                                                queue='8820')
             logging.info("SDR Outbound Result: %s", sdr_response)
             self.assertIsNotNone(sdr_response)
 

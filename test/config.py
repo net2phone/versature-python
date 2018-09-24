@@ -32,7 +32,8 @@ class Config(object):
     @property
     def versature(self):
         return Versature(username=self.username, password=self.password, client_id=self.client_id,
-                         client_secret=self.client_secret, vendor_id=self.vendor_id, api_url=self.api_url, storage=self.storage)
+                         client_secret=self.client_secret, vendor_id=self.vendor_id, api_url=self.api_url,
+                         storage=self.storage)
 
 
 def client_credential_config():
@@ -48,7 +49,8 @@ def office_manager_config():
 
 def base_user_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
-                  user=BASIC_USER_USER, domain=BASIC_USER_DOMAIN, password=BASIC_USER_PASSWORD, storage=DictionaryStorage())
+                  user=BASIC_USER_USER, domain=BASIC_USER_DOMAIN, password=BASIC_USER_PASSWORD,
+                  storage=DictionaryStorage())
 
 
 def reseller_config():
@@ -58,5 +60,43 @@ def reseller_config():
 
 def call_center_supervisor_config():
     return Config(api_url=VERSATURE_API_URL, client_id=VERSATURE_CLIENT_ID, vendor_id=VERSATURE_VENDOR_ID,
-                  user=CALL_CENTER_SUPERVISOR_USER, domain=CALL_CENTER_SUPERVISOR_DOMAIN, password=CALL_CENTER_SUPERVISOR_PASSWORD,
+                  user=CALL_CENTER_SUPERVISOR_USER, domain=CALL_CENTER_SUPERVISOR_DOMAIN,
+                  password=CALL_CENTER_SUPERVISOR_PASSWORD,
                   call_queue_user=CALL_QUEUE_USER, storage=DictionaryStorage())
+
+
+class AccessConfig(object):
+
+    def __getattr__(self, name):
+
+        if name == 'client_credential':
+            client_credential = client_credential_config()
+            setattr(self, 'client_credential', client_credential)
+            return client_credential
+
+        elif name == 'office_manager':
+            office_manager = office_manager_config()
+            setattr(self, 'office_manager', office_manager)
+            return office_manager
+
+        elif name == 'basic_user':
+            basic_user = base_user_config()
+            setattr(self, 'basic_user', basic_user)
+            return basic_user
+
+        elif name == 'reseller':
+            reseller = reseller_config()
+            setattr(self, 'reseller', reseller)
+            return reseller
+
+        elif name == 'call_center_supervisor':
+            call_center_supervisor = call_center_supervisor_config()
+            setattr(self, 'call_center_supervisor', call_center_supervisor)
+            return call_center_supervisor
+
+        else:
+            raise AttributeError(name)
+
+
+access_config = AccessConfig()
+
