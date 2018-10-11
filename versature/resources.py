@@ -889,6 +889,23 @@ class Versature(object):
 
 
 #############################
+#######   Presence    #######
+#############################
+
+    @obtain_access
+    def presence(self, **kwargs):
+        """
+        Get the presence for all users in the domain
+
+        :param kwargs:
+        :return:
+        """
+        path = 'presence/'
+        return self.authenticated_resource_request(**kwargs).request('GET', path=path, _limit_concurrent_requests=True)
+
+
+
+#############################
 ####### UNIT TESTS    #######
 #############################
 
