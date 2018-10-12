@@ -670,7 +670,7 @@ class Versature(object):
     #######################
 
     @obtain_access
-    def create_subscription(self, post_uri, expires_in=7200, calls=False, cdrs=False, cdr_creation=False, recordings=False, recording_analytics=False, raw=False, user='*', **kwargs):
+    def create_subscription(self, post_uri, expires_in=7200, agent=False, subscriber=False, calls=False, cdrs=False, cdr_creation=False, recordings=False, recording_analytics=False, raw=False, user='*', **kwargs):
         """
         create a subscription
         :param post_uri:
@@ -694,6 +694,8 @@ class Versature(object):
                   'recordings': recordings,
                   'recording_analytics': recording_analytics,
                   'raw': raw,
+                  'agent': agent,
+                  'subscriber': subscriber,
                   'user': user}
 
         return self.authenticated_resource_request(**kwargs).request('POST', path=path, params=params, _limit_concurrent_requests=True)
@@ -904,10 +906,10 @@ class Versature(object):
         return self.authenticated_resource_request(**kwargs).request('GET', path=path, _limit_concurrent_requests=True)
 
 
-
 #############################
 ####### UNIT TESTS    #######
 #############################
+
 
 class VersatureUnitTest(Versature):
 
