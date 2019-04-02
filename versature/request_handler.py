@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 import logging
+from datetime import datetime
+from time import sleep
 
 from dateutil import parser
 
@@ -24,6 +26,19 @@ class ResourceRequest(object):
 
     def __init__(self, api_url, api_version, async=False, timeout=60, request_handler=None, storage=None,
                  cache_timeout=60, content_type='Application/json; charset=utf-8'):
+        """
+
+        :param api_url:
+        :param api_version:
+        :param async:
+        :param timeout:
+        :param request_handler:
+        :param storage:
+        :param cache_timeout:
+        :param content_type:
+        :param wait_time_interval: The number of seconds before checking for the key again
+        :param max_wait_time: The maximum number of seconds to wait between requests
+        """
         self.api_url = api_url
         self.api_version = api_version
         self._request_handler = None
@@ -75,7 +90,7 @@ class ResourceRequest(object):
         """
         content, _ = self.get_content(response)
 
-        if self.storage:
+        if self.storage and self.storage_key:
             self.storage.set(self.storage_key, content, self.cache_timeout)
 
         if callback:
@@ -85,7 +100,9 @@ class ResourceRequest(object):
     def get_content(self, response):
         return self.request_handler.get_content(response)
 
-    def request(self, method, path=None, headers=None, params=None, data=None, files=None):
+    def request(self, method, path=None, headers=None, params=None, data=None, files=None,
+                _limit_concurrent_requests=False, _limit_concurrent_wait_time_interval=5,
+                _limit_concurrent_max_wait_time=20, _use_cached_results=True):
         """
         Make a request
         :param method:
@@ -94,6 +111,10 @@ class ResourceRequest(object):
         :param params:
         :param data:
         :param files:
+        :param _limit_concurrent_requests:
+        :param _limit_concurrent_wait_time_interval:
+        :param _limit_concurrent_max_wait_time:
+        :param _use_cached_results: If True will use cached results if they exist
 
         :return:
         """
@@ -112,21 +133,47 @@ class ResourceRequest(object):
             filter(None, data)
 
         self.storage_key = None
+        limit_concurrent_requests_storage_key = None
+
         if self.storage:
-            self.create_storage_key(path, params, data)
-            cached_result = self.storage.get(self.storage_key)
-            logging.info("Cached Result: {cached_result}".format(cached_result=cached_result))
+            self.storage_key = self.create_storage_key(path, params, data) if _use_cached_results else None
+
+            # See if a cached result exists
+            cached_result = self.storage.get(self.storage_key) if self.storage_key else None
             if cached_result:
                 return cached_result
 
-        url = '%s/%s' % (self.api_url, path) if path else self.api_url
-        if self.async:
-            # Return a Future Object
-            self.future = self.request_handler.request_async(method, url, params, data, files, headers, self.timeout)
-            return self
-        else:
-            response = self.request_handler.request(method, url, params, data, files, headers, self.timeout)
-            return self.parse_result(response)
+            # Limit concurrent request rate
+            if _limit_concurrent_requests:
+                limit_concurrent_requests_storage_key = 'limit_concurrent_requests_%s' % self.create_storage_key(path, params, data)
+                wait_time = 0
+
+                # Wait up until max_wait_time for the key to be removed. If the key isn't present or we reach the max
+                # wait time then move forward with the request
+                while self.storage.get(limit_concurrent_requests_storage_key) and wait_time <= _limit_concurrent_max_wait_time:
+                    sleep(_limit_concurrent_wait_time_interval)
+                    wait_time += _limit_concurrent_wait_time_interval
+
+                # If we didn't reach teh max wait time then add a limiter
+                if wait_time <= _limit_concurrent_max_wait_time:
+                    self.storage.set(limit_concurrent_requests_storage_key, datetime.utcnow(), _limit_concurrent_max_wait_time)
+
+        try:
+
+            url = '%s/%s' % (self.api_url, path) if path else self.api_url
+            if self.async:
+                # Return a Future Object
+                self.future = self.request_handler.request_async(method, url, params, data, files, headers, self.timeout)
+                return self
+            else:
+                response = self.request_handler.request(method, url, params, data, files, headers, self.timeout)
+                return self.parse_result(response)
+
+        finally:
+
+            # If storage is used then remove the current requests storage key
+            if self.storage and limit_concurrent_requests_storage_key:
+                self.storage.delete(limit_concurrent_requests_storage_key)
 
     def create_storage_key(self, path, params, data):
         """
@@ -136,8 +183,8 @@ class ResourceRequest(object):
         :param data:
         :return:
         """
-        self.storage_key = self.storage.create_storage_key(access_token=None, api_version=self.api_version, path=path,
-                                                           params=params, data=data)
+        return self.storage.create_storage_key(access_token=None, api_version=self.api_version, path=path,
+                                               params=params, data=data)
 
 
 class AuthenticatedResourceRequest(ResourceRequest):
@@ -164,8 +211,8 @@ class AuthenticatedResourceRequest(ResourceRequest):
         :param data:
         :return:
         """
-        self.storage_key = self.storage.create_storage_key(access_token=self.access_token, api_version=self.api_version,
-                                                           path=path, params=params, data=data)
+        return self.storage.create_storage_key(access_token=self.access_token, api_version=self.api_version, path=path,
+                                               params=params, data=data)
 
 
 class RequestHandlerBase(object):
